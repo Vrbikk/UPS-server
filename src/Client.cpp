@@ -17,6 +17,9 @@ void Client::clientRunner(){
     while(running){
         std::this_thread::sleep_for (std::chrono::seconds(1));
         std::cout << "running:" << id << std::endl;
+
+        game->Notify(10); //TODO PROBLEM!!!!!
+
     }
 }
 
