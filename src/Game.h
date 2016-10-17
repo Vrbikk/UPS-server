@@ -7,20 +7,24 @@
 
 
 #include "Client.h"
+#include <memory>
 #include <vector>
 #include <algorithm>
 
 class Client;
 
 class Game {
-    std::vector<Client*> clientList;
+private:
+    std::vector<std::unique_ptr<Client>> clientList = std::vector<std::unique_ptr<Client>>(3);
 public:
-    int activeClients = 0;
     int maxClients = 3;
-    void Attach(Client *client);
-    void Detach(Client *client);
+    int activeClients = 0;
+    void Attach(std::unique_ptr<Client> client);
+    void Detach(int client_id);
     void Notify(int number);
-    void joinClients();
+    void initClients();
+    int getFreeIndex();
+    void clientDisconnected(std::unique_ptr<Client> client);
 };
 
 

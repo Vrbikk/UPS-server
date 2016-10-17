@@ -8,23 +8,50 @@ bool Connection::initConnection() {
     return true;
 }
 
-bool running;
+bool ready;
 
-void Connection::clientAccepting_Thread() {
-    while(game->activeClients < game->maxClients){
-        std::cout << "CONN: adding client" << std::endl;
-        Client client(game, 1, 1);
-        game->Attach(&client);
+void Connection::acceptingRunner() {
+
+    while(running) {
+        std::unique_lock<std::mutex> lk(m);
+        cv.wait(lk, []{return ready;});
+
+        while (game->activeClients < game->maxClients) {
+            int index = game->getFreeIndex();
+            std::unique_ptr<Client> client = std::unique_ptr<Client>(new Client(index, index));
+            game->Attach(std::move(client));
+        }
+
+        game->initClients();
+        ready = false;
+        lk.unlock();
     }
-
-    //std::cout << "joining" << std::endl;
-
-    game->joinClients(); //TODO pruser
 }
+
+void Connection::wakeupRunner() {
+    ready = false;
+    {
+        std::lock_guard<std::mutex> lk(m);
+        ready = true;
+        std::cout << "zahajuji\n";
+    }
+    cv.notify_one();
+}
+
 
 void Connection::setUpAccepting(Game *_game) {
+    running = true;
     game = _game;
-    std::thread acceptor(&Connection::clientAccepting_Thread, this);
-    acceptor.join();
+    accepting_thread = std::thread(&Connection::acceptingRunner, this);
 }
+
+Connection::~Connection() {
+
+    running = false; //TODO ukonceni
+
+    if(accepting_thread.joinable()){
+        accepting_thread.join();
+    }
+}
+
 

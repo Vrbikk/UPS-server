@@ -10,22 +10,26 @@ void Client::Update(int number) {
 }
 
 void Client::sendToAll(int number) {
-    this->game->Notify(number); //TODO PROBLEM
+    this->game->Notify(number);
 }
 
-void Client::runner() {
-    //std::cout << "running from client:" << id << std::endl;
+void Client::clientRunner(){
     while(running){
-        std::this_thread::sleep_for (std::chrono::seconds(3));
-        std::cout << "running from client:" << id << std::endl;
+        std::this_thread::sleep_for (std::chrono::seconds(1));
+        std::cout << "running:" << id << std::endl;
     }
 }
 
-Client::Client(Game *game, int id, int connection_id) : game(game), id(id), connection_id(connection_id) {
-
+Client::Client(int id, int connection_id) : id(id), connection_id(connection_id) {
 }
 
 void Client::initThread() {
     running = true;
-    client_thread = std::thread(&Client::runner, this);
+    client_thread = std::thread(&Client::clientRunner, this);
+}
+
+Client::~Client() {
+    if(client_thread.joinable()){
+        client_thread.join();
+    }
 }
