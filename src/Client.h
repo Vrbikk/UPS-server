@@ -9,6 +9,7 @@
 #include <iostream>
 #include <thread>
 #include <netinet/in.h>
+#include "protocol.h"
 
 class Game;
 
@@ -32,8 +33,10 @@ public:
     bool client_running = false;
     void Update(int number);
     void sendToAll(int number);
+    void clientDisconnected();
     void clientRunner();
     void initThread();
+    void handleInput(char *input);
 
 };
 

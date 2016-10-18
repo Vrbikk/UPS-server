@@ -19,7 +19,7 @@ int main() {
         game.addIndexToGarbage(0);
         game.addIndexToGarbage(1);
 
-        game.wakeupGarbageCollector();
+        game.wakeupGarbageCollector();helpPlsfngj(int homo);
 
         std::this_thread::sleep_for (std::chrono::seconds(3));
 

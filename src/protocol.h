@@ -20,6 +20,7 @@ struct message {
 
 message compose_message(message_type type_, std::string data_);
 message decompose_message(char *raw);
+bool is_valid_message(char *input);
 
 
 

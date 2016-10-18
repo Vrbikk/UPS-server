@@ -23,6 +23,9 @@ private:
     Logger();
 
 public:
+    Logger(Logger const&) = delete;
+    Logger& operator=(Logger const&) = delete;
+
     void setUp(string path);
     void Info(string message);
     void Error(string message);
@@ -30,4 +33,4 @@ public:
     string get_current_date_time();
 };
 
-#endif //PLAYGROUND_LOGGER_H
+#endif

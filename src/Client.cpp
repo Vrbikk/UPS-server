@@ -15,17 +15,14 @@ void Client::sendToAll(int number) {
 void Client::clientRunner(){
 
     char input[buffer_size];
-
     while(client_running){
         memset(input, 0, (size_t)buffer_size);
         int result = (int)read(connection_id, &input, (size_t)(buffer_size - 1));
 
         if(result <= 0){
-            LOGGER->Error("Client " + to_string(connection_id) + " has disconnected");
-            game->addIndexToGarbage(id);
-            game->wakeupGarbageCollector();
-
-            std::this_thread::sleep_for (std::chrono::milliseconds(100));
+            clientDisconnected();
+        }else{
+            handleInput(input);
         }
     }
 }
@@ -42,5 +39,20 @@ Client::~Client() {
     client_running = false;
     if(client_thread.joinable()){
         client_thread.join();
+    }
+}
+
+void Client::clientDisconnected() {
+    LOGGER->Error("Client " + to_string(id) + " has disconnected");
+    game->addIndexToGarbage(id);
+    game->wakeupGarbageCollector();
+    std::this_thread::sleep_for (std::chrono::milliseconds(50));
+}
+
+void Client::handleInput(char *input) {
+    if(is_valid_message(input)){
+
+    }else{
+        LOGGER->Error("bad message! : " + string(input));
     }
 }
