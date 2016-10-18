@@ -4,13 +4,10 @@
 
 #include "Logger.h"
 
-Logger *Logger::logger_instance = NULL;
+Logger *Logger::logger_instance = nullptr;
 ofstream Logger::log_stream;
 
 Logger::Logger() {
-
-    //default config
-    logging_file = "log.log";
 }
 
 string Logger::get_current_date_time() {
@@ -26,6 +23,7 @@ string Logger::get_current_date_time() {
 }
 
 void Logger::Log(string log_message) {
+    std::lock_guard<mutex> lk(log_mutex);
     string final_message = get_current_date_time() + ":  " + log_message;
     cout << final_message << endl;
     log_stream << final_message << endl;

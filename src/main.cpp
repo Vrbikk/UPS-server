@@ -14,9 +14,7 @@ int main() {
 
         game.startGame();
 
-        std::this_thread::sleep_for(std::chrono::seconds(8));
-
-
+        /*std::this_thread::sleep_for(std::chrono::seconds(8));
 
         game.addIndexToGarbage(0);
         game.addIndexToGarbage(1);

@@ -13,13 +13,25 @@ void Client::sendToAll(int number) {
 }
 
 void Client::clientRunner(){
+
+    char input[buffer_size];
+
     while(client_running){
-        std::this_thread::sleep_for (std::chrono::seconds(1));
-        LOGGER->Info("client:" + to_string(id) + " is running");
+        memset(input, 0, (size_t)buffer_size);
+        int result = (int)read(connection_id, &input, (size_t)(buffer_size - 1));
+
+        if(result <= 0){
+            LOGGER->Error("Client " + to_string(connection_id) + " has disconnected");
+            game->addIndexToGarbage(id);
+            game->wakeupGarbageCollector();
+
+            std::this_thread::sleep_for (std::chrono::milliseconds(100));
+        }
     }
 }
 
-Client::Client(int connection_id, Game *game_) : connection_id(connection_id), game(game_) {}
+Client::Client(int connection_id, sockaddr_in address_ , Game *game_) :
+        connection_id(connection_id), address(address_), game(game_) {}
 
 void Client::initThread() {
     client_running = true;

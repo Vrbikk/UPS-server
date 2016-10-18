@@ -8,6 +8,7 @@
 #include "Game.h"
 #include <iostream>
 #include <thread>
+#include <netinet/in.h>
 
 class Game;
 
@@ -16,6 +17,8 @@ private:
     Game *game;
     int connection_id = -1;
     std::thread client_thread;
+    sockaddr_in address;
+    int buffer_size = 300;
 
 public:
     std::string name = "";
@@ -23,7 +26,7 @@ public:
 
     Client(Client const&) = delete;
     Client& operator=(Client const&) = delete;
-    Client(int connection_id, Game *game_);
+    Client(int connection_id, sockaddr_in address_ , Game *game_);
     ~Client();
 
     bool client_running = false;

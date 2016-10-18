@@ -21,7 +21,7 @@ void Game::Attach(std::unique_ptr<Client> client) {
 
 void Game::Detach(int client_id) {
 
-    if(client_id < maxClients && client_id >= 0){
+    if(client_id < maxClients && client_id >= 0 && clientList.at((unsigned long)client_id) != nullptr){
         clientList.at((unsigned long) client_id) = nullptr;
         activeClients--;
         LOGGER->Info("client removed with id: " + to_string(client_id));

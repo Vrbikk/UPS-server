@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 
 using namespace std;
 
@@ -17,7 +18,8 @@ private:
     static Logger *logger_instance;
     static ofstream log_stream;
     void Log(string log_message);
-    string logging_file;
+    string logging_file = "log.log";
+    mutex log_mutex;
     Logger();
 
 public:
