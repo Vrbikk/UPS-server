@@ -8,48 +8,26 @@ bool Connection::initConnection() {
     return true;
 }
 
-bool ready;
-
 void Connection::acceptingRunner() {
-    while(running) {
-        std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, []{return ready;});
+    while(accepting_running) {
 
-        while (game->activeClients < game->maxClients) {
-            int index = game->getFreeIndex();
+        //TODO accepting
 
-            if(index == -1){
-                std::cout << "ERROR: could not add more clients!\n";
-                break;
-            }
-            std::unique_ptr<Client> client = std::unique_ptr<Client>(new Client(index, index));
-            game->Attach(std::move(client));
-        }
-        //game->initClients();
-        ready = false;
-        lk.unlock();
+        std::this_thread::sleep_for (std::chrono::seconds(1));
+        std::unique_ptr<Client> client = std::unique_ptr<Client>(new Client(0, game)); //TODO port
+        game->Attach(std::move(client));
     }
 }
 
-void Connection::wakeupRunner() {
-    ready = false;
-    {
-        std::lock_guard<std::mutex> lk(m);
-        ready = true;
-    }
-    cv.notify_one();
-}
-
-
-void Connection::setUpAccepting(Game *_game) {
-    running = true;
+void Connection::initAccepting(Game *_game) {
+    accepting_running = true;
     game = _game;
     accepting_thread = std::thread(&Connection::acceptingRunner, this);
 }
 
 Connection::~Connection() {
 
-    running = false; //TODO ukonceni
+    accepting_running = false;
 
     if(accepting_thread.joinable()){
         accepting_thread.join();

@@ -6,27 +6,27 @@
 
 void Game::Attach(std::unique_ptr<Client> client) {
     if(activeClients < maxClients){
-        std::cout << "GAME: client added with id: " << client->id << std::endl;
-        unsigned long index = (unsigned long) client->id;
+        unsigned long index = (unsigned long) getFreeIndex();
+
+        LOGGER->Info("client added with id: " + to_string(index));
+
+        client->id = (int)index;
         clientList.at(index) = std::move(client);
         clientList.at(index)->initThread();
         activeClients++;
     }else{
-        std::cout << "ERROR: could not add more clients!\n";
+        LOGGER->Error("could not add more clients");
     }
 }
 
 void Game::Detach(int client_id) {
-                                                        //TODO thread cannot access this
+
     if(client_id < maxClients && client_id >= 0){
-        clientList.at(client_id)->running = false;
-        //TODO temp timeout
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        clientList.at(client_id) = NULL;
+        clientList.at((unsigned long) client_id) = nullptr;
         activeClients--;
-        std::cout << "GAME: client removed with id: " << client_id << std::endl;
+        LOGGER->Info("client removed with id: " + to_string(client_id));
     }else{
-        std::cout << "ERROR: index for removing client out of size!\n";
+        LOGGER->Info("could not remove client - bad index: " + to_string(client_id));
     }
 }
 
@@ -47,9 +47,58 @@ int Game::getFreeIndex() {
     return -1;
 }
 
-void Game::initGame(Connection *connection_) {
-    connection = connection_;
-    connection->wakeupRunner();
+void Game::startGame() {
+
+
+}
+
+bool garbage_ready;
+
+void Game::garbageCollectorThread() {
+    while(garbage_collector_running){
+        std::unique_lock<std::mutex> lk(mutex_garbage_collector);
+        cv.wait(lk, []{return garbage_ready;});
+
+        while(!garbageQueue.empty()) {
+            Detach(garbageQueue.front());
+            garbageQueue.pop();
+        }
+
+        garbage_ready = false;
+        lk.unlock();
+    }
+}
+
+void Game::initGarbageCollector() {
+    garbage_ready = false;
+    garbage_collector_running = true;
+    garbage_collector_thread = std::thread(&Game::garbageCollectorThread, this);
+}
+
+void Game::wakeupGarbageCollector() {
+    {
+        std::lock_guard<std::mutex> lk(mutex_garbage_collector);
+        garbage_ready = true;
+    }
+    cv.notify_one();
+}
+
+void Game::addIndexToGarbage(int index) {
+    std::lock_guard<std::mutex> lk(mutex_add_index);
+    garbageQueue.push(index);
+}
+
+Game::Game(Connection *connection_) : connection(connection_) {
+    initGarbageCollector();
+}
+
+Game::~Game() {
+    garbage_collector_running = false;
+    wakeupGarbageCollector();
+
+    if(garbage_collector_thread.joinable()){
+        garbage_collector_thread.join();
+    }
 }
 
 

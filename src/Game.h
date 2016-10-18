@@ -5,12 +5,15 @@
 #ifndef SERVER2_GAME_H
 #define SERVER2_GAME_H
 
-
 #include "Client.h"
 #include "Connection.h"
+#include "Logger.h"
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
 
 class Client;
 class Connection;
@@ -18,15 +21,29 @@ class Connection;
 class Game {
 private:
     std::vector<std::unique_ptr<Client>> clientList = std::vector<std::unique_ptr<Client>>(3);
+    std::queue<int> garbageQueue;
+    std::thread garbage_collector_thread;
+    std::mutex mutex_garbage_collector;
+    std::mutex mutex_add_index;
+    std::condition_variable cv;
+    bool garbage_collector_running = false;
     Connection *connection;
+
 public:
+    Game(Connection *connection_);
+
+    virtual ~Game();
     int maxClients = 3;
     int activeClients = 0;
     void Attach(std::unique_ptr<Client> client);
     void Detach(int client_id);
     void Notify(int number);
     int getFreeIndex();
-    void initGame(Connection *connection_);
+    void addIndexToGarbage(int index);
+    void garbageCollectorThread();
+    void initGarbageCollector();
+    void startGame();
+    void wakeupGarbageCollector();
 };
 
 

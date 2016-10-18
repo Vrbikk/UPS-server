@@ -15,17 +15,18 @@ class Client {
 private:
     Game *game;
     int connection_id = -1;
-    std::string name = "";
     std::thread client_thread;
 
 public:
+    std::string name = "";
     int id = -1;
+
     Client(Client const&) = delete;
     Client& operator=(Client const&) = delete;
-    Client(int id, int connection_id);
+    Client(int connection_id, Game *game_);
     ~Client();
 
-    bool running = false;
+    bool client_running = false;
     void Update(int number);
     void sendToAll(int number);
     void clientRunner();

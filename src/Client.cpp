@@ -4,34 +4,30 @@
 
 #include "Client.h"
 
-
 void Client::Update(int number) {
     std::cout << number << std::endl;
 }
 
 void Client::sendToAll(int number) {
-    this->game->Notify(number);
+    game->Notify(number);
 }
 
 void Client::clientRunner(){
-    while(running){
+    while(client_running){
         std::this_thread::sleep_for (std::chrono::seconds(1));
-        std::cout << "running:" << id << std::endl;
-
-        game->Notify(10); //TODO PROBLEM!!!!!
-
+        LOGGER->Info("client:" + to_string(id) + " is running");
     }
 }
 
-Client::Client(int id, int connection_id) : id(id), connection_id(connection_id) {
-}
+Client::Client(int connection_id, Game *game_) : connection_id(connection_id), game(game_) {}
 
 void Client::initThread() {
-    running = true;
+    client_running = true;
     client_thread = std::thread(&Client::clientRunner, this);
 }
 
 Client::~Client() {
+    client_running = false;
     if(client_thread.joinable()){
         client_thread.join();
     }
