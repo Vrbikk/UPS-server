@@ -6,8 +6,8 @@
 #define SERVER2_CONNECTION_H
 
 #include "Game.h"
+#include "Configuration.h"
 #include <thread>
-
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <zconf.h>

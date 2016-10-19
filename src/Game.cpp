@@ -8,7 +8,7 @@ void Game::Attach(std::unique_ptr<Client> client) {
     if(activeClients < maxClients){
         unsigned long index = (unsigned long) getFreeIndex();
 
-        LOGGER->Info("client added with id: " + to_string(index));
+        LOGGER->Info("client added with id: " + std::to_string(index));
 
         client->id = (int)index;
         clientList.at(index) = std::move(client);
@@ -25,9 +25,9 @@ void Game::Detach(int client_id) {
     if(client_id < maxClients && client_id >= 0 && clientList.at((unsigned long)client_id) != nullptr){
         clientList.at((unsigned long) client_id) = nullptr;
         activeClients--;
-        LOGGER->Info("client removed with id: " + to_string(client_id));
+        LOGGER->Info("client removed with id: " + std::to_string(client_id));
     }else{
-        LOGGER->Info("could not remove client - bad index: " + to_string(client_id));
+        LOGGER->Info("could not remove client - bad index: " + std::to_string(client_id));
     }
 }
 

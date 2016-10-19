@@ -8,10 +8,10 @@ message compose_message(message_type type_, std::string data_) {
     message msg;
     msg.type = type_;
     msg.data = data_;
-    std::string msg_body = ":" + to_string(type_) + ":" + data_ + ";";
+    std::string msg_body = ":" + std::to_string(type_) + ":" + data_ + ";";
     int body_size = (int)msg_body.size();
     msg.len = body_size;
-    msg.raw = to_string(body_size) + msg_body;
+    msg.raw = std::to_string(body_size) + msg_body;
     return msg;
 }
 
@@ -34,7 +34,7 @@ bool is_valid_message(std::string input) {
         return false;
     }
 
-    string message = get_message(input);
+    std::string message = get_message(input);
 
     if(message.empty() || message.size() < 5){
         LOGGER->Error("not valid - bad size after cropping");
@@ -74,11 +74,11 @@ bool is_valid_message(std::string input) {
     return true;
 }
 
-string get_message(std::string input) {
+std::string get_message(std::string input) {
     return input.substr(0, input.find(';'));
 }
 
-std::vector<std::string> split(string message) {
+std::vector<std::string> split(std::string message) {
 
     std::vector<std::string> tmp_items;
 
@@ -92,10 +92,6 @@ std::vector<std::string> split(string message) {
     }
 
     return tmp_items;
-}
-
-bool is_number(const std::string &s) {
-    return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !isdigit(c); }) == s.end();
 }
 
 bool advanced_data_validation(message_type type, std::string data) {

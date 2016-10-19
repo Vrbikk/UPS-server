@@ -11,26 +11,24 @@
 #include <iostream>
 #include <mutex>
 
-using namespace std;
-
 class Logger {
 private:
     static Logger *logger_instance;
-    static ofstream log_stream;
-    void Log(string log_message);
-    string logging_file = "log.log";
-    mutex log_mutex;
+    static std::ofstream log_stream;
+    void Log(std::string log_message);
+    std::string logging_file = "log.log";
+    std::mutex log_mutex;
     Logger();
 
 public:
     Logger(Logger const&) = delete;
     Logger& operator=(Logger const&) = delete;
 
-    void setUp(string path);
-    void Info(string message);
-    void Error(string message);
+    void setUp(std::string path);
+    void Info(std::string message);
+    void Error(std::string message);
     static Logger *getLogger();
-    string get_current_date_time();
+    std::string get_current_date_time();
 };
 
 #endif

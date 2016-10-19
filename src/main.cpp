@@ -1,34 +1,30 @@
 #include "Game.h"
 
-int main() {
+int main(int argc, char *argv[]) {
 
     LOGGER->setUp("log.log");
 
-    LOGGER->Info("Server started.");
+    if(argc == 2 && CONFIG->setUp(argv[1])){
+        LOGGER->Info("Server started.");
 
-    Connection connection;
+        Configuration::getConfiguration()->setUp(argv[1]);
 
-    if(connection.initConnection()){
-        Game game(&connection);
-        connection.initAccepting(&game);
+        Connection connection;
 
-        game.startGame();
+        if(connection.initConnection()){
+            Game game(&connection);
+            connection.initAccepting(&game);
 
-        /*std::this_thread::sleep_for(std::chrono::seconds(8));
+            game.startGame();
 
-        game.addIndexToGarbage(0);
-        game.addIndexToGarbage(1);
-
-        game.wakeupGarbageCollector();helpPlsfngj(int homo);
-
-        std::this_thread::sleep_for (std::chrono::seconds(3));
-
-        //game.Notify(200);*/
-
-        while(true){
-           // game.Notify(200);
-           // std::this_thread::sleep_for (std::chrono::seconds(1));
+            while(true){
+                // game.Notify(200);
+                std::this_thread::sleep_for (std::chrono::seconds(10));
+            }
         }
+
+    }else{
+        LOGGER->Error("Config file not found, ending");
     }
 
     return 0;

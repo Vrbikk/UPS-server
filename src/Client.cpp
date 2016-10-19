@@ -47,7 +47,7 @@ Client::~Client() {
 }
 
 void Client::Disconnection() {
-    LOGGER->Error("Client conn_id:" + to_string(connection_id) + " has disconnected");
+    LOGGER->Error("Client conn_id:" + std::to_string(connection_id) + " has disconnected");
     game->addIndexToGarbage(id);
     game->wakeupGarbageCollector();
     std::this_thread::sleep_for (std::chrono::milliseconds(50));
@@ -57,17 +57,17 @@ void Client::handleInput(std::string input) {
     if(is_valid_message(input)){
         sendMessage(compose_message(DEBUG, "ahoj"));
     }else{
-        LOGGER->Error("BAD message! : " + string(input));
+        LOGGER->Error("BAD message! : " + std::string(input));
     }
 }
 
 void Client::sendMessage(message msg) {
     if(sending_status) {
-        string a = msg.raw;
+        std::string a = msg.raw;
         a += '\n';
         send(connection_id, a.c_str(), a.size(), 0);
     }else{
-        LOGGER->Error("Could not send message, client is not running id:" + to_string(id));
+        LOGGER->Error("Could not send message, client is not running id:" + std::to_string(id));
     }
 }
 

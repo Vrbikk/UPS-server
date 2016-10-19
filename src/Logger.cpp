@@ -5,12 +5,12 @@
 #include "Logger.h"
 
 Logger *Logger::logger_instance = nullptr;
-ofstream Logger::log_stream;
+std::ofstream Logger::log_stream;
 
 Logger::Logger() {
 }
 
-string Logger::get_current_date_time() {
+std::string Logger::get_current_date_time() {
     char time_format[] = "%d-%m-%Y %H:%M:%S";
     time_t time_now;
     struct tm * timeinfo;
@@ -18,15 +18,15 @@ string Logger::get_current_date_time() {
     time(&time_now);
     timeinfo = localtime(&time_now);
     strftime(buffer, 80, time_format, timeinfo);
-    string str(buffer);
+    std::string str(buffer);
     return str;
 }
 
-void Logger::Log(string log_message) {
-    std::lock_guard<mutex> lk(log_mutex);
-    string final_message = get_current_date_time() + ":  " + log_message;
-    cout << final_message << endl;
-    log_stream << final_message << endl;
+void Logger::Log(std::string log_message) {
+    std::lock_guard<std::mutex> lk(log_mutex);
+    std::string final_message = get_current_date_time() + ":  " + log_message;
+    std::cout << final_message << std::endl;
+    log_stream << final_message << std::endl;
 }
 
 Logger *Logger::getLogger() {
@@ -37,16 +37,16 @@ Logger *Logger::getLogger() {
     return logger_instance;
 }
 
-void Logger::setUp(string path) {
+void Logger::setUp(std::string path) {
     logging_file = path;
-    log_stream.open(logging_file.c_str(), ios::out | ios::app);
+    log_stream.open(logging_file.c_str(), std::ios::out | std::ios::app);
 }
 
-void Logger::Info(string message) {
+void Logger::Info(std::string message) {
     Log("INFO - " + message);
 }
 
-void Logger::Error(string message) {
+void Logger::Error(std::string message) {
     Log("ERROR - " + message);
 }
 
