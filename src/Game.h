@@ -27,10 +27,10 @@ private:
     std::mutex mutex_add_index;
     std::condition_variable cv;
     bool garbage_collector_running = false;
-    Connection *connection;
+    std::shared_ptr<Connection> connection;
 
 public:
-    Game(Connection *connection_);
+    Game(std::shared_ptr<Connection> connection_);
 
     virtual ~Game();
     int maxClients = 3;

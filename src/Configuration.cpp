@@ -58,7 +58,7 @@ Configuration *Configuration::getConfiguration() {
 
 void Configuration::setBoolValue(std::string a, bool &target, std::string target_name) {
     if(is_number(a) && stoi(a) >= 0 && stoi(a) <= 1) {
-        target = (stoi(a) == 1);
+        target = (stoi(a) == 1); //TODO != 0 pro všechny > 0 bude true
     }else{
         LOGGER->Error("configuration file corrupted - " + target_name);
     }

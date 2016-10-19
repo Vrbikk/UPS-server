@@ -49,8 +49,10 @@ int Game::getFreeIndex() {
 }
 
 void Game::startGame() {
-
-
+    while(true){
+        // game.Notify(200);
+        std::this_thread::sleep_for (std::chrono::seconds(10));
+    }
 }
 
 bool garbage_ready;
@@ -89,7 +91,7 @@ void Game::addIndexToGarbage(int index) {
     garbageQueue.push(index);
 }
 
-Game::Game(Connection *connection_) : connection(connection_) {
+Game::Game(std::shared_ptr<Connection> connection_) : connection(connection_) {
     initGarbageCollector();
 }
 
