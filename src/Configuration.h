@@ -25,6 +25,9 @@ private:
     void setIntegerValue(std::string a, int &target, std::string target_name);
 
 public:
+    Configuration(Configuration const&) = delete;
+    Configuration& operator=(Configuration const&) = delete;
+
     static Configuration *getConfiguration();
     bool isCommentOrEmpty(std::string line);
     void setTypeAndValue(std::string line, std::string &type, std::string &value);
@@ -33,6 +36,7 @@ public:
     int getNumberOfClients();
     int getIntpuBufferSize();
     std::string getCurrentConfiguration();
+    void destroyConfiguration();
 };
 
 #endif

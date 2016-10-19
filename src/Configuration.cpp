@@ -24,7 +24,6 @@ void Configuration::setTypeAndValue(std::string line, std::string &type, std::st
     value = line.substr(line.find(DELIMETER) + 1, line.size());
 }
 
-
 bool Configuration::setUp(const std::string path) {
     if(file_exists(path)){
         std::ifstream file(path);
@@ -92,6 +91,11 @@ std::string Configuration::getCurrentConfiguration() {
 
 int Configuration::getIntpuBufferSize() {
     return input_buffer_size;
+}
+
+void Configuration::destroyConfiguration() {
+    delete configuration_instance;
+    configuration_instance = nullptr;
 }
 
 

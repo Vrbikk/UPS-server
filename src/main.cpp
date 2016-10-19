@@ -27,5 +27,9 @@ int main(int argc, char *argv[]) {
         LOGGER->Error("Config file not found, ending");
     }
 
+    // singletons are my friends
+    CONFIG->destroyConfiguration();
+    LOGGER->destroyLogger();
+
     return 0;
 }

@@ -50,6 +50,11 @@ void Logger::Error(std::string message) {
     Log("ERROR - " + message);
 }
 
+void Logger::destroyLogger() {
+    delete logger_instance;
+    logger_instance = nullptr;
+}
+
 
 
 

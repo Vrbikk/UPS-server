@@ -29,6 +29,7 @@ public:
     void Error(std::string message);
     static Logger *getLogger();
     std::string get_current_date_time();
+    void destroyLogger();
 };
 
 #endif

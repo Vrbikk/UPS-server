@@ -5,9 +5,15 @@
 #ifndef SERVER2_SERVER_H
 #define SERVER2_SERVER_H
 
+#include <thread>
 
 class Server {
-
+private:
+    std::thread server_thread;
+public:
+    Server();
+    ~Server();
+    void initServer();
 };
 
 
