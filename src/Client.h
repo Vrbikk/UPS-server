@@ -21,7 +21,7 @@ private:
     sockaddr_in address;
     int buffer_size = 300;
     bool client_running = false;
-    bool sending_status = false;
+    bool sending_status = true;
 public:
     std::string name = "";
     int id = -1;
@@ -33,11 +33,12 @@ public:
 
     void Update(int number);
     void sendToAll(int number);
-    void clientDisconnected();
+    void Disconnection();
     void clientRunner();
     void initThread();
     void handleInput(std::string input);
     void sendMessage(message msg);
+    void closeConnection();
 
 };
 

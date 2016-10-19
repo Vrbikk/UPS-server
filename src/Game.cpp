@@ -16,11 +16,12 @@ void Game::Attach(std::unique_ptr<Client> client) {
         activeClients++;
     }else{
         LOGGER->Error("could not add more clients");
+        client->sendMessage(compose_message(ERROR, "Server is full"));
+
     }
 }
 
 void Game::Detach(int client_id) {
-
     if(client_id < maxClients && client_id >= 0 && clientList.at((unsigned long)client_id) != nullptr){
         clientList.at((unsigned long) client_id) = nullptr;
         activeClients--;

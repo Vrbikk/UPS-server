@@ -21,7 +21,7 @@ void Client::clientRunner(){
 
         if(result <= 0){
             sending_status = false;
-            clientDisconnected();
+            Disconnection();
         }else{
             handleInput(std::string(input));
         }
@@ -33,19 +33,21 @@ Client::Client(int connection_id, sockaddr_in address_ , Game *game_) :
 
 void Client::initThread() {
     client_running = true;
-    sending_status = true;
     client_thread = std::thread(&Client::clientRunner, this);
 }
 
 Client::~Client() {
     client_running = false;
+
+    closeConnection();
+
     if(client_thread.joinable()){
         client_thread.join();
     }
 }
 
-void Client::clientDisconnected() {
-    LOGGER->Error("Client " + to_string(id) + " has disconnected");
+void Client::Disconnection() {
+    LOGGER->Error("Client conn_id:" + to_string(connection_id) + " has disconnected");
     game->addIndexToGarbage(id);
     game->wakeupGarbageCollector();
     std::this_thread::sleep_for (std::chrono::milliseconds(50));
@@ -67,4 +69,8 @@ void Client::sendMessage(message msg) {
     }else{
         LOGGER->Error("Could not send message, client is not running id:" + to_string(id));
     }
+}
+
+void Client::closeConnection() {
+    close(connection_id);
 }
