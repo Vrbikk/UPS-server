@@ -28,7 +28,7 @@ void Client::clientRunner(){
     }
 }
 
-Client::Client(int connection_id, sockaddr_in address_ , Game *game_) :
+Client::Client(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_) :
         connection_id(connection_id), address(address_), game(game_) {}
 
 void Client::initThread() {

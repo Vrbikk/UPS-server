@@ -15,7 +15,7 @@ class Game;
 
 class Client {
 private:
-    Game *game;
+    std::shared_ptr<Game> game;
     int connection_id = -1;
     std::thread client_thread;
     sockaddr_in address;
@@ -28,7 +28,7 @@ public:
 
     Client(Client const&) = delete;
     Client& operator=(Client const&) = delete;
-    Client(int connection_id, sockaddr_in address_ , Game *game_);
+    Client(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_);
     ~Client();
 
     void Update(int number);

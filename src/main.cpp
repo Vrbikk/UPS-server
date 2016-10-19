@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include "Server.h"
 
 int main(int argc, char *argv[]) {
 
@@ -6,13 +7,18 @@ int main(int argc, char *argv[]) {
 
     if(argc == 2 && CONFIG->setUp(argv[1])){
         LOGGER->Info("Initializing servers");
-
-
-    }else{
-        LOGGER->Error("Config file not found, ending");
+        Server server;
+        if(server.initServer()){
+            LOGGER->Info("ok");
+            std::this_thread::sleep_for (std::chrono::seconds(10));
+        }else{
+            LOGGER->Error("fck");
+        }
     }
 
-    // singletons are my friends
+    LOGGER->Info("bye :*");
+
+    // singletons are my friends <3
     CONFIG->destroyConfiguration();
     LOGGER->destroyLogger();
 

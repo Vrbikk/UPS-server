@@ -49,10 +49,9 @@ int Game::getFreeIndex() {
 }
 
 void Game::startGame() {
-    while(true){
-        // game.Notify(200);
-        std::this_thread::sleep_for (std::chrono::seconds(10));
-    }
+
+    std::this_thread::sleep_for (std::chrono::seconds(10));
+    //while(true){}
 }
 
 bool garbage_ready;

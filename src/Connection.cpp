@@ -61,9 +61,9 @@ void Connection::acceptingRunner() {
     }
 }
 
-void Connection::initAccepting(Game *_game) {
+void Connection::initAccepting(std::shared_ptr<Game> game_) {
     accepting_running = true;
-    game = _game;
+    game = game_;
     accepting_thread = std::thread(&Connection::acceptingRunner, this);
 }
 

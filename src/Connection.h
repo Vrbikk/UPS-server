@@ -22,14 +22,14 @@ private:
     int server_port = 10000;
     int tcp_queue = 10;
     bool accepting_running = false;
-    Game *game;
+    std::shared_ptr<Game> game;
     std::thread accepting_thread;
 
 public:
     ~Connection();
     bool initConnection();
     void acceptingRunner();
-    void initAccepting(Game *_game);
+    void initAccepting(std::shared_ptr<Game> game_);
 };
 
 #endif //SERVER2_CONNECTION_H

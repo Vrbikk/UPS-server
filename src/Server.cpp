@@ -17,17 +17,17 @@ Server::~Server() {
 void Server::serverRunner() {
 
     while(server_running) {
-        game.startGame();
+        //herní smyčka bude tady snad
+        game->startGame();
     }
 
 }
 
 bool Server::initServer() {
     connection = std::make_shared<Connection>();
-
     if(connection->initConnection()){
-        Game game(connection); //tadyyyy posílam shared pointer
-        connection.initAccepting(&game);
+        game = std::make_shared<Game>(connection); //tadyyyy posílam shared pointer
+        connection->initAccepting(game);
         server_running = true;
         server_thread = std::thread(&Server::serverRunner, this);
         return true;
