@@ -7,10 +7,13 @@ int main(int argc, char *argv[]) {
 
     if(argc == 2 && CONFIG->setUp(argv[1])){
         LOGGER->Info("Initializing servers");
-        Server server;
-        if(server.initServer()){
+
+            Server server(CONFIG->server_configurations[0]);
+            Server serverr(CONFIG->server_configurations[1]);
+
+        if(server.initServer() && serverr.initServer()){
             LOGGER->Info("ok");
-            std::this_thread::sleep_for (std::chrono::seconds(10));
+            while(true){}
         }else{
             LOGGER->Error("fck");
         }

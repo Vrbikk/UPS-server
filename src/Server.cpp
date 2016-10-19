@@ -4,7 +4,7 @@
 
 #include "Server.h"
 
-Server::Server() {}
+Server::Server(server_config server_config_) : server_conf(server_config_) {}
 Server::~Server() {
 
     server_running = false;
@@ -25,7 +25,7 @@ void Server::serverRunner() {
 
 bool Server::initServer() {
     connection = std::make_shared<Connection>();
-    if(connection->initConnection()){
+    if(connection->initConnection(server_conf.port)){
         game = std::make_shared<Game>(connection); //tadyyyy posílam shared pointer
         connection->initAccepting(game);
         server_running = true;

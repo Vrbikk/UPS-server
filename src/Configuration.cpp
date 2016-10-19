@@ -10,9 +10,6 @@ Configuration::Configuration() {
 
        //default configuration
 
-    port = 10000;
-    number_of_clients = 2;
-    input_buffer_size = 300;
 }
 
 bool Configuration::isCommentOrEmpty(std::string line) {
@@ -36,9 +33,9 @@ bool Configuration::setUp(const std::string path) {
                 std::string type, value;
                 setTypeAndValue(line, type, value);
                         // c++ does not support switching for string so... :(
-                if(!type.compare("port")){setIntegerValue(value, port, "port");}
-                else if(!type.compare("number_of_clients")){setIntegerValue(value, number_of_clients, "number_of_clients");}
-                else if(!type.compare("input_buffer_size")){setIntegerValue(value, input_buffer_size, "input_buffer_size");}
+                if(!type.compare("server")){parseServerConfig(value);}
+                //else if(!type.compare("number_of_clients")){setIntegerValue(value, number_of_clients, "number_of_clients");}
+                //else if(!type.compare("input_buffer_size")){setIntegerValue(value, input_buffer_size, "input_buffer_size");}
             }
         }
         return true;
@@ -72,30 +69,28 @@ void Configuration::setIntegerValue(std::string a, int &target, std::string targ
     }
 }
 
-int Configuration::getPort() {
-    return port;
-}
-
-int Configuration::getNumberOfClients() {
-    return number_of_clients;
-}
-
 std::string Configuration::getCurrentConfiguration() {
     std::string base = "Current Configuration: ";
-    base += "port=" + std::to_string(port) + ", ";
-    base += "number_of_clients=" + std::to_string(number_of_clients) + ", ";
-    base += "input_buffer_size=" + std::to_string(input_buffer_size);
 
     return base;
 }
 
-int Configuration::getIntpuBufferSize() {
-    return input_buffer_size;
-}
 
 void Configuration::destroyConfiguration() {
     delete configuration_instance;
     configuration_instance = nullptr;
+}
+
+void Configuration::parseServerConfig(std::string line) { //TODO valid server config line
+    std::vector<std::string> items = split(line, ",");
+
+    server_config srv_conf_tmp;
+    srv_conf_tmp.name = items[0];
+    srv_conf_tmp.number_of_clients = std::stoi(items[1]);
+    srv_conf_tmp.port = std::stoi(items[2]);
+    srv_conf_tmp.id = (int)server_configurations.size();
+
+    server_configurations.push_back(srv_conf_tmp);
 }
 
 

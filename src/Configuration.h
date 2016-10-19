@@ -12,29 +12,29 @@
 #include <fstream>
 #include "Logger.h"
 #include "tools.h"
+#include "structs.h"
 
 class Configuration {
 private:
     static Configuration *configuration_instance;
     Configuration();
     std::string DELIMETER = ":";
-    int port;
-    int number_of_clients;
-    int input_buffer_size;
     void setBoolValue(std::string a, bool &target, std::string target_name);
     void setIntegerValue(std::string a, int &target, std::string target_name);
+    bool isCommentOrEmpty(std::string line);
+    void parseServerConfig(std::string line);
+
+
 
 public:
+    std::vector<server_config> server_configurations;
     Configuration(Configuration const&) = delete;
     Configuration& operator=(Configuration const&) = delete;
 
     static Configuration *getConfiguration();
-    bool isCommentOrEmpty(std::string line);
+
     void setTypeAndValue(std::string line, std::string &type, std::string &value);
     bool setUp(const std::string path);
-    int getPort();
-    int getNumberOfClients();
-    int getIntpuBufferSize();
     std::string getCurrentConfiguration();
     void destroyConfiguration();
 };

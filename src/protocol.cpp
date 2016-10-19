@@ -17,7 +17,7 @@ message compose_message(message_type type_, std::string data_) {
 
 message decompose_message(std::string input, int client_id) {
     message msg;
-    std::vector<std::string> items = split(get_message(input));
+    std::vector<std::string> items = split(get_message(input), ":");
 
     msg.len = std::stoi(items[0]);
     msg.type = static_cast<message_type>(std::stoi(items[1]));
@@ -41,7 +41,7 @@ bool is_valid_message(std::string input) {
         return false;
     }
 
-    std::vector<std::string> items = split(message);
+    std::vector<std::string> items = split(message, ":");
 
     if(items.empty() || items.size() != 3){
         LOGGER->Error("not valid - items do not fit");
@@ -78,22 +78,6 @@ std::string get_message(std::string input) {
     return input.substr(0, input.find(';'));
 }
 
-std::vector<std::string> split(std::string message) {
-
-    std::vector<std::string> tmp_items;
-
-    char arr[message.size()];
-    strcpy(arr, message.c_str());
-    char *tokens = strtok(arr, ":");
-
-    while(tokens != nullptr){
-        tmp_items.push_back(tokens);
-        tokens = strtok(nullptr, ":");
-    }
-
-    return tmp_items;
-}
-
 bool advanced_data_validation(message_type type, std::string data) {
 
     //TODO advanced data validation
@@ -108,7 +92,9 @@ bool advanced_data_validation(message_type type, std::string data) {
         case LOGIN_ANS:{
             return false; // cuz server -> client only
         }
-
+        case ERROR:{
+            return true;
+        }
         default:{
             return false;
         }

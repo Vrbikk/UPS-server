@@ -16,3 +16,19 @@ bool file_exists(const std::string file_name){
 void clear_string(std::string &str) {
     str.erase(std::remove(str.begin(),str.end(),' '),str.end());
 }
+
+std::vector<std::string> split(std::string message, std::string delim) {
+
+    std::vector<std::string> tmp_items;
+
+    char arr[message.size()];
+    strcpy(arr, message.c_str());
+    char *tokens = strtok(arr, delim.c_str());
+
+    while(tokens != nullptr){
+        tmp_items.push_back(tokens);
+        tokens = strtok(nullptr, delim.c_str());
+    }
+
+    return tmp_items;
+}

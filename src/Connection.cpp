@@ -4,7 +4,7 @@
 
 #include "Connection.h"
 
-bool Connection::initConnection() {
+bool Connection::initConnection(int port) {
     struct sockaddr_in serv_addr, client_address;
 
     // initializing TCP socket_number
@@ -22,7 +22,7 @@ bool Connection::initConnection() {
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY; // binding socket_number to all interfaces
-    serv_addr.sin_port = htons(server_port); // transfers port into 16bit number format
+    serv_addr.sin_port = htons(port); // transfers port into 16bit number format
 
     int optval = 1;
     setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));

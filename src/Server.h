@@ -8,17 +8,19 @@
 #include <thread>
 #include <memory>
 #include "Game.h"
+#include "structs.h"
 
 class Server {
 private:
     std::shared_ptr<Connection> connection;
     std::shared_ptr<Game> game;
 
+    server_config server_conf;
     std::thread server_thread;
     bool server_running;
     void serverRunner();
 public:
-    Server();
+    Server(server_config server_config_);
     ~Server();
     bool initServer();
 };

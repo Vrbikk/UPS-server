@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include <cstring>
 #include "Logger.h"
 #include "tools.h"
 
@@ -33,7 +32,6 @@ message decompose_message(std::string input, int client_id);
 bool is_valid_message(std::string input);
 
 std::string get_message(std::string input);
-std::vector<std::string> split(std::string message);
 bool advanced_data_validation(message_type type, std::string data);
 
 #endif //SERVER2_PROTOCOL_H

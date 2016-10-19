@@ -27,7 +27,7 @@ private:
 
 public:
     ~Connection();
-    bool initConnection();
+    bool initConnection(int port);
     void acceptingRunner();
     void initAccepting(std::shared_ptr<Game> game_);
 };
