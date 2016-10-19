@@ -55,7 +55,6 @@ void Connection::acceptingRunner() {
 
         int connection_id = accept(server_socket, (struct sockaddr *) &client_address, &size);
 
-        std::this_thread::sleep_for (std::chrono::seconds(1));
         std::unique_ptr<Client> client = std::unique_ptr<Client>(new Client(
                 connection_id, client_address, game));
         game->Attach(std::move(client));

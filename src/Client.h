@@ -20,7 +20,8 @@ private:
     std::thread client_thread;
     sockaddr_in address;
     int buffer_size = 300;
-
+    bool client_running = false;
+    bool sending_status = false;
 public:
     std::string name = "";
     int id = -1;
@@ -30,13 +31,13 @@ public:
     Client(int connection_id, sockaddr_in address_ , Game *game_);
     ~Client();
 
-    bool client_running = false;
     void Update(int number);
     void sendToAll(int number);
     void clientDisconnected();
     void clientRunner();
     void initThread();
-    void handleInput(char *input);
+    void handleInput(std::string input);
+    void sendMessage(message msg);
 
 };
 
