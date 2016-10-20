@@ -11,11 +11,11 @@ bool Connection::initConnection(int port) {
     server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (server_socket < 0) {
-        LOGGER->Error("Socket could not be initialized");
+        logger->Error("Socket could not be initialized");
         return false;
     }
 
-    LOGGER->Info("Initializing socket OK");
+    logger->Info("Initializing socket OK");
 
     memset(&serv_addr, 0, sizeof(sockaddr_in));
     memset(&client_address, 0, sizeof(sockaddr_in));
@@ -30,20 +30,20 @@ bool Connection::initConnection(int port) {
     int binding_status = bind(server_socket, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
 
     if(binding_status < 0){
-        LOGGER->Error("Socket binding failed");
+        logger->Error("Socket binding failed");
         return false;
     }
 
-    LOGGER->Info("Binding socket OK");
+    logger->Info("Binding socket OK");
 
     int listen_status = listen(server_socket, tcp_queue);
 
     if(listen_status != 0){
-        LOGGER->Error("Listening on socket failed");
+        logger->Error("Listening on socket failed");
         return false;
     }
 
-    LOGGER->Info("Listening on socket OK");
+    logger->Info("Listening on socket OK");
     return true;
 }
 
@@ -56,7 +56,7 @@ void Connection::acceptingRunner() {
         int connection_id = accept(server_socket, (struct sockaddr *) &client_address, &size);
 
         std::unique_ptr<Client> client = std::unique_ptr<Client>(new Client(
-                connection_id, client_address, game));
+                connection_id, client_address, game, logger));
         game->Attach(std::move(client));
     }
 }
@@ -74,5 +74,7 @@ Connection::~Connection() {
         accepting_thread.join();
     }
 }
+
+Connection::Connection(std::shared_ptr<Logger> logger_) : logger(logger_) {}
 
 

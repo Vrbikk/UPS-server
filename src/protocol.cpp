@@ -30,26 +30,26 @@ message decompose_message(std::string input, int client_id) {
 bool is_valid_message(std::string input) {
 
     if(input.empty() || (input.at(0) == '\0')){
-        LOGGER->Error("not valid - null");
+       // LOGGER->Error("not valid - null");
         return false;
     }
 
     std::string message = get_message(input);
 
     if(message.empty() || message.size() < 5){
-        LOGGER->Error("not valid - bad size after cropping");
+       // LOGGER->Error("not valid - bad size after cropping");
         return false;
     }
 
     std::vector<std::string> items = split(message, ":");
 
     if(items.empty() || items.size() != 3){
-        LOGGER->Error("not valid - items do not fit");
+      //  LOGGER->Error("not valid - items do not fit");
         return false;
     }
 
     if(!is_number(items[0]) || !is_number(items[1])){
-        LOGGER->Error("not valid - type or len are not numbers");
+      //  LOGGER->Error("not valid - type or len are not numbers");
         return false;
     }
 
@@ -57,17 +57,17 @@ bool is_valid_message(std::string input) {
     int type = std::stoi(items[1]);
 
     if((len - 1) != (items[1].size() + items[2].size() + 2)){  // 2 * DELIMETER,  without ;
-        LOGGER->Error("not valid - wrong len");
+      //  LOGGER->Error("not valid - wrong len");
         return false;
     }
 
     if(!(type >= DEBUG && type <= ERROR)) {
-        LOGGER->Error("not valid - unknown type of message");
+      //  LOGGER->Error("not valid - unknown type of message");
         return false;
     }
 
     if(!advanced_data_validation(static_cast<message_type>(type), items[2])){
-        LOGGER->Error("not valid - advanced data validation failed");
+      //  LOGGER->Error("not valid - advanced data validation failed");
         return false;
     }
 

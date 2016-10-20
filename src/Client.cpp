@@ -28,8 +28,8 @@ void Client::clientRunner(){
     }
 }
 
-Client::Client(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_) :
-        connection_id(connection_id), address(address_), game(game_) {}
+Client::Client(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_, std::shared_ptr<Logger> logger_) :
+        connection_id(connection_id), address(address_), game(game_), logger(logger_) {}
 
 void Client::initThread() {
     client_running = true;
@@ -47,7 +47,7 @@ Client::~Client() {
 }
 
 void Client::Disconnection() {
-    LOGGER->Error("Client conn_id:" + std::to_string(connection_id) + " has disconnected");
+    logger->Error("Client conn_id:" + std::to_string(connection_id) + " has disconnected");
     game->addIndexToGarbage(id);
     game->wakeupGarbageCollector();
     std::this_thread::sleep_for (std::chrono::milliseconds(50));
@@ -57,7 +57,7 @@ void Client::handleInput(std::string input) {
     if(is_valid_message(input)){
         sendMessage(compose_message(DEBUG, "ahoj"));
     }else{
-        LOGGER->Error("BAD message! : " + std::string(input));
+        logger->Error("BAD message! : " + std::string(input));
     }
 }
 
@@ -67,7 +67,7 @@ void Client::sendMessage(message msg) {
         a += '\n';
         send(connection_id, a.c_str(), a.size(), 0);
     }else{
-        LOGGER->Error("Could not send message, client is not running id:" + std::to_string(id));
+        logger->Error("Could not send message, client is not running id:" + std::to_string(id));
     }
 }
 

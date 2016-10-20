@@ -29,9 +29,10 @@ private:
     bool garbage_collector_running = false;
     bool garbage_ready;
     std::shared_ptr<Connection> connection;
+    std::shared_ptr<Logger> logger;
 
 public:
-    Game(std::shared_ptr<Connection> connection_);
+    Game(std::shared_ptr<Connection> connection_, std::shared_ptr<Logger> logger_);
 
     virtual ~Game();
     int maxClients = 3;

@@ -3,27 +3,39 @@
 
 int main(int argc, char *argv[]) {
 
-    LOGGER->setUp("log.log");
+    std::shared_ptr<Logger> mainLogger = std::make_shared<Logger>("log.log", true);
+    std::unique_ptr<Configuration> config = std::unique_ptr<Configuration>(new Configuration(mainLogger));
+    std::vector<std::unique_ptr<Server>> servers;
 
-    if(argc == 2 && CONFIG->setUp(argv[1])){
-        LOGGER->Info("Initializing servers");
+    if(argc == 2 && config->setUp(argv[1])){
 
-            Server server(CONFIG->server_configurations[0]);
-            Server serverr(CONFIG->server_configurations[1]);
+        mainLogger->Info("Initializing servers");
 
-        if(server.initServer() && serverr.initServer()){
-            LOGGER->Info("ok");
-            while(true){}
-        }else{
-            LOGGER->Error("fck");
+        for(int i = 0; i < config->getServerConfigurations().size(); i++){
+
+            server_config server_conf = config->getServerConfigurations().at(i);
+            std::unique_ptr<Server> server = std::unique_ptr<Server>(new Server(server_conf));
+            if(server->initServer()){
+                servers.push_back(std::move(server));
+                mainLogger->Info(server_conf.get_server_name() + " initialized");
+                mainLogger->Info("with params: " + server_conf.get_server_params());
+            }else{
+                mainLogger->Error(server_conf.get_server_name() + " failed during init");
+            }
         }
     }
 
-    LOGGER->Info("bye :*");
+    while(true){
+        std::cout << "console>> ";
+        std::string input;
+        std::cin >> input;
 
-    // singletons are my friends <3
-    CONFIG->destroyConfiguration();
-    LOGGER->destroyLogger();
+        if(!input.compare("exit")){
+            mainLogger->Info("shutting down...");
+            break;
+        }
+    }
 
+    mainLogger->Info("bye <3");
     return 0;
 }

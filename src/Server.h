@@ -14,6 +14,7 @@ class Server {
 private:
     std::shared_ptr<Connection> connection;
     std::shared_ptr<Game> game;
+    std::shared_ptr<Logger> logger;
 
     server_config server_conf;
     std::thread server_thread;

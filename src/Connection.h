@@ -24,8 +24,9 @@ private:
     bool accepting_running = false;
     std::shared_ptr<Game> game;
     std::thread accepting_thread;
-
+    std::shared_ptr<Logger> logger;
 public:
+    Connection(const std::shared_ptr<Logger> logger_);
     ~Connection();
     bool initConnection(int port);
     void acceptingRunner();

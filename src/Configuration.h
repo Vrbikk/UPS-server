@@ -12,6 +12,7 @@
 #include <fstream>
 #include "Logger.h"
 #include "tools.h"
+#include <memory>
 
 struct server_config{
     int id = 0;
@@ -19,13 +20,23 @@ struct server_config{
     std::string name = "default";
     int port = 10000;
     int number_of_clients = 2;
+
+    std::string get_server_name()
+    {
+        std::string server_name = "Server |" + name + "|-[" + std::to_string(id) + "]";
+        return server_name;
+    }
+
+    std::string get_server_params()
+    {
+        std::string server_params = "port: " + std::to_string(port) + ", number_of_clients: " + std::to_string(number_of_clients);
+        return server_params;
+    }
 };
 
 class Configuration {
 
 private:
-    static Configuration *configuration_instance;
-    Configuration();
     std::string DELIMETER = ":";
     void setBoolValue(std::string a, bool &target, std::string target_name);
     void setIntegerValue(std::string a, int &target, std::string target_name);
@@ -33,16 +44,15 @@ private:
     void parseServerConfig(std::string line);
     std::vector<server_config> server_configurations;
     server_config default_server_configuration;
+    std::shared_ptr<Logger> logger;
 
 public:
+    Configuration(std::shared_ptr<Logger> logger_);
 
     Configuration(Configuration const&) = delete;
     Configuration& operator=(Configuration const&) = delete;
-    static Configuration *getConfiguration();
     void setTypeAndValue(std::string line, std::string &type, std::string &value);
     bool setUp(const std::string path);
-    std::string getCurrentConfiguration();
-    void destroyConfiguration();
     std::vector<server_config> getServerConfigurations();
 };
 

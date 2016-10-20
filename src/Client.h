@@ -22,13 +22,14 @@ private:
     int buffer_size = 300;
     bool client_running = false;
     bool sending_status = true;
+    std::shared_ptr<Logger> logger;
 public:
     std::string name = "";
     int id = -1;
 
     Client(Client const&) = delete;
     Client& operator=(Client const&) = delete;
-    Client(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_);
+    Client(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_, std::shared_ptr<Logger> logger_);
     ~Client();
 
     void Update(int number);

@@ -4,9 +4,7 @@
 
 #include "Configuration.h"
 
-Configuration *Configuration::configuration_instance = nullptr;
-
-Configuration::Configuration() {
+Configuration::Configuration(std::shared_ptr<Logger> logger_) : logger(logger_){
        //default configuration
 
     default_server_configuration.logging_file = "default.log";
@@ -49,24 +47,16 @@ bool Configuration::setUp(const std::string path) {
 
         return true;
     }else{
-        LOGGER->Error("Config file was not found");
+        logger->Error("Config file was not found");
         return false;
     }
-}
-
-Configuration *Configuration::getConfiguration() {
-    if(configuration_instance == nullptr){
-        configuration_instance = new Configuration();
-    }
-
-    return configuration_instance;
 }
 
 void Configuration::setBoolValue(std::string a, bool &target, std::string target_name) {
     if(is_number(a) && stoi(a) >= 0 && stoi(a) <= 1) {
         target = (stoi(a) == 1); //TODO != 0 pro všechny > 0 bude true
     }else{
-        LOGGER->Error("configuration file corrupted - " + target_name);
+        logger->Error("configuration file corrupted - " + target_name);
     }
 }
 
@@ -74,19 +64,8 @@ void Configuration::setIntegerValue(std::string a, int &target, std::string targ
     if(is_number(a) && stoi(a) > 0) {
         target = stoi(a);
     }else{
-        LOGGER->Error("configuration file corrupted - " + target_name);
+        logger->Error("configuration file corrupted - " + target_name);
     }
-}
-
-std::string Configuration::getCurrentConfiguration() {
-    std::string base = "Current Configuration: ";
-    return base;
-}
-
-
-void Configuration::destroyConfiguration() {
-    delete configuration_instance;
-    configuration_instance = nullptr;
 }
 
 void Configuration::parseServerConfig(std::string line) {
@@ -101,7 +80,7 @@ void Configuration::parseServerConfig(std::string line) {
         srv_conf_tmp.id = (int) server_configurations.size();
         server_configurations.push_back(srv_conf_tmp);
     }else{
-        LOGGER->Error("configuration file corrupted at line: " + line);
+        logger->Error("configuration file corrupted at line: " + line);
     }
 }
 

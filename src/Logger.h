@@ -4,7 +4,6 @@
 
 #ifndef PLAYGROUND_LOGGER_H
 #define PLAYGROUND_LOGGER_H
-#define LOGGER Logger::getLogger()
 
 #include <string>
 #include <fstream>
@@ -13,23 +12,20 @@
 
 class Logger {
 private:
-    static Logger *logger_instance;
-    static std::ofstream log_stream;
+    std::ofstream log_stream;
     void Log(std::string log_message);
-    std::string logging_file = "log.log";
+    std::string get_current_date_time();
     std::mutex log_mutex;
-    Logger();
-
+    std::string logging_file;
+    bool console_output;
 public:
+    Logger(std::string logging_file_, bool console_output_);
+    ~Logger();
+
     Logger(Logger const&) = delete;
     Logger& operator=(Logger const&) = delete;
-
-    void setUp(std::string path);
     void Info(std::string message);
     void Error(std::string message);
-    static Logger *getLogger();
-    std::string get_current_date_time();
-    void destroyLogger();
 };
 
 #endif

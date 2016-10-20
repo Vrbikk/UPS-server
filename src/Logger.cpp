@@ -4,10 +4,8 @@
 
 #include "Logger.h"
 
-Logger *Logger::logger_instance = nullptr;
-std::ofstream Logger::log_stream;
-
-Logger::Logger() {
+Logger::Logger(std::string logging_file_, bool console_output_) : logging_file(logging_file_), console_output(console_output_){
+    log_stream.open(logging_file.c_str(), std::ios::out | std::ios::app);
 }
 
 std::string Logger::get_current_date_time() {
@@ -25,21 +23,12 @@ std::string Logger::get_current_date_time() {
 void Logger::Log(std::string log_message) {
     std::lock_guard<std::mutex> lk(log_mutex);
     std::string final_message = get_current_date_time() + ":  " + log_message;
-    std::cout << final_message << std::endl;
-    log_stream << final_message << std::endl;
-}
 
-Logger *Logger::getLogger() {
-    if(logger_instance == NULL){
-        logger_instance = new Logger();
+    if(console_output) {
+        std::cout << final_message << std::endl;
     }
 
-    return logger_instance;
-}
-
-void Logger::setUp(std::string path) {
-    logging_file = path;
-    log_stream.open(logging_file.c_str(), std::ios::out | std::ios::app);
+    log_stream << final_message << std::endl;
 }
 
 void Logger::Info(std::string message) {
@@ -50,9 +39,8 @@ void Logger::Error(std::string message) {
     Log("ERROR - " + message);
 }
 
-void Logger::destroyLogger() {
-    delete logger_instance;
-    logger_instance = nullptr;
+Logger::~Logger() {
+    log_stream.close();
 }
 
 
