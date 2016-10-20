@@ -7,9 +7,13 @@
 Configuration *Configuration::configuration_instance = nullptr;
 
 Configuration::Configuration() {
-
        //default configuration
 
+    default_server_configuration.logging_file = "default.log";
+    default_server_configuration.port = 10000;
+    default_server_configuration.id = 0;
+    default_server_configuration.name = "default";
+    default_server_configuration.number_of_clients = 2;
 }
 
 bool Configuration::isCommentOrEmpty(std::string line) {
@@ -38,6 +42,11 @@ bool Configuration::setUp(const std::string path) {
                 //else if(!type.compare("input_buffer_size")){setIntegerValue(value, input_buffer_size, "input_buffer_size");}
             }
         }
+
+        if(server_configurations.empty()){
+            server_configurations.push_back(default_server_configuration);
+        }
+
         return true;
     }else{
         LOGGER->Error("Config file was not found");
@@ -71,7 +80,6 @@ void Configuration::setIntegerValue(std::string a, int &target, std::string targ
 
 std::string Configuration::getCurrentConfiguration() {
     std::string base = "Current Configuration: ";
-
     return base;
 }
 
@@ -81,16 +89,24 @@ void Configuration::destroyConfiguration() {
     configuration_instance = nullptr;
 }
 
-void Configuration::parseServerConfig(std::string line) { //TODO valid server config line
+void Configuration::parseServerConfig(std::string line) {
     std::vector<std::string> items = split(line, ",");
 
-    server_config srv_conf_tmp;
-    srv_conf_tmp.name = items[0];
-    srv_conf_tmp.number_of_clients = std::stoi(items[1]);
-    srv_conf_tmp.port = std::stoi(items[2]);
-    srv_conf_tmp.id = (int)server_configurations.size();
+    if(items.size() == 4) {
+        server_config srv_conf_tmp;
+        srv_conf_tmp.name = items[0];
+        srv_conf_tmp.number_of_clients = std::stoi(items[1]);
+        srv_conf_tmp.port = std::stoi(items[2]);
+        srv_conf_tmp.logging_file = items[3];
+        srv_conf_tmp.id = (int) server_configurations.size();
+        server_configurations.push_back(srv_conf_tmp);
+    }else{
+        LOGGER->Error("configuration file corrupted at line: " + line);
+    }
+}
 
-    server_configurations.push_back(srv_conf_tmp);
+std::vector<server_config> Configuration::getServerConfigurations() {
+    return server_configurations;
 }
 
 

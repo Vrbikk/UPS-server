@@ -27,7 +27,7 @@ private:
     std::mutex mutex_add_index;
     std::condition_variable cv;
     bool garbage_collector_running = false;
-
+    bool garbage_ready;
     std::shared_ptr<Connection> connection;
 
 public:

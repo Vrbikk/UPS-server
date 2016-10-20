@@ -8,7 +8,7 @@
 #include <thread>
 #include <memory>
 #include "Game.h"
-#include "structs.h"
+#include "Configuration.h"
 
 class Server {
 private:

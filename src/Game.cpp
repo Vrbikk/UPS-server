@@ -54,12 +54,10 @@ void Game::startGame() {
     while(true){}
 }
 
-bool garbage_ready;
-
 void Game::garbageCollectorThread() {
     while(garbage_collector_running){
         std::unique_lock<std::mutex> lk(mutex_garbage_collector);
-        cv.wait(lk, []{return garbage_ready;});
+        cv.wait(lk, [&]{return garbage_ready;});
 
         while(!garbageQueue.empty()) {
             Detach(garbageQueue.front());
