@@ -29,7 +29,7 @@ message decompose_message(std::string input, int client_id) {
 
 bool is_valid_message(std::string input) {
 
-    if(input.empty() || (input.at(0) == '\0')){
+    if(input.empty() || (input.at(0) == '\0') || input.size() > 300){
        // LOGGER->Error("not valid - null");
         return false;
     }
@@ -80,17 +80,16 @@ std::string get_message(std::string input) {
 
 bool advanced_data_validation(message_type type, std::string data) {
 
-    //TODO advanced data validation
-
     switch(type){
         case DEBUG:{
             return true;
         }
-        case LOGIN:{
-            return true;
-        }
-        case LOGIN_ANS:{
-            return false; // cuz server -> client only
+        case LOGIN_C:{
+            if(data.length() >= 2){
+                return true;
+            }else{
+                return false;
+            }
         }
         case ERROR:{
             return true;

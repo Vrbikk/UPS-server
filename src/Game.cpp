@@ -77,6 +77,8 @@ void Game::addIndexToGarbage(int index) {
 
 Game::Game(std::shared_ptr<Logger> logger_, int number_of_clients_) :logger(logger_), maxClients(number_of_clients_){
     initGarbageCollector();
+    gameLogic = std::unique_ptr<GameLogic>(new GameLogic(this, logger));
+    clientList = std::vector<std::unique_ptr<Client>>(maxClients);
 }
 
 Game::~Game() {
@@ -87,6 +89,13 @@ Game::~Game() {
         garbage_collector_thread.join();
     }
 }
+
+void Game::resolveMessage(message msg) {
+    std::lock_guard<std::mutex> lk(mutex_input);
+    gameLogic->input(msg);
+}
+
+
 
 
 

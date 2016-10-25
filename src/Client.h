@@ -16,6 +16,8 @@ class Game;
 
 struct client_data{
     std::string name = "";
+    bool logged = false;
+    bool ready = false;
 };
 
 class Client {

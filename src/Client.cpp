@@ -48,8 +48,10 @@ void Client::clientDisconnected() {
 void Client::handleInput(std::string input) {
     if(is_valid_message(input)){
         message msg = decompose_message(input, id);
+        game->resolveMessage(msg);
     }else{
         logger->Error("BAD message! : " + std::string(input));
+        sendMessage(compose_message(ERROR, "invalid message"));
     }
 }
 

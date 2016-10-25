@@ -11,12 +11,7 @@
 #include "tools.h"
 
 enum message_type{
-    DEBUG, LOGIN, LOGIN_ANS, ERROR
-};
-
-struct char_string{
-    char *content = nullptr;
-    int len = 0;
+    DEBUG, LOGIN_C, LOGIN_S, BROADCAST, READY, ERROR
 };
 
 struct message {
@@ -25,6 +20,11 @@ struct message {
     int len = -1;
     int client_id = -1;
     std::string raw = "";
+
+    std::string print(){
+        std::string text = "type: " + std::to_string(type) + " from: " + std::to_string(client_id) + " data: " + data;
+        return text;
+    }
 };
 
 message compose_message(message_type type_, std::string data_);

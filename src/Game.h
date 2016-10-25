@@ -14,16 +14,20 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include "GameLogic.h"
 
 class Client;
+class GameLogic;
 
 class Game {
 private:
-    std::vector<std::unique_ptr<Client>> clientList = std::vector<std::unique_ptr<Client>>(3);
+    std::unique_ptr<GameLogic> gameLogic;
+    std::vector<std::unique_ptr<Client>> clientList;
     std::queue<int> garbageQueue;
     std::thread garbage_collector_thread;
     std::mutex mutex_garbage_collector;
     std::mutex mutex_add_index;
+    std::mutex mutex_input;
     std::condition_variable cv;
     bool garbage_collector_running = false;
     bool garbage_ready;
@@ -41,6 +45,16 @@ public:
     void garbageCollectorThread();
     void initGarbageCollector();
     void wakeupGarbageCollector();
+    void resolveMessage(message msg);
+
+    bool tryLogin(int id, std::string name);
+
+    void sendToOne(int id, message msg);
+    void sendToAll(message msg);
+
+
+
+
 };
 
 
