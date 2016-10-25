@@ -18,8 +18,9 @@ private:
     std::mutex log_mutex;
     std::string logging_file;
     bool console_output;
+    bool enable_logging;
 public:
-    Logger(std::string logging_file_, bool console_output_);
+    Logger(std::string logging_file_, bool console_output_, bool enable_logging_);
     ~Logger();
 
     Logger(Logger const&) = delete;

@@ -6,8 +6,8 @@
 #define SERVER2_GAME_H
 
 #include "Client.h"
-#include "Connection.h"
 #include "Logger.h"
+#include <thread>
 #include <memory>
 #include <vector>
 #include <algorithm>
@@ -16,7 +16,6 @@
 #include <condition_variable>
 
 class Client;
-class Connection;
 
 class Game {
 private:
@@ -28,23 +27,19 @@ private:
     std::condition_variable cv;
     bool garbage_collector_running = false;
     bool garbage_ready;
-    std::shared_ptr<Connection> connection;
     std::shared_ptr<Logger> logger;
 
 public:
-    Game(std::shared_ptr<Connection> connection_, std::shared_ptr<Logger> logger_);
-
+    Game(std::shared_ptr<Logger> logger_, int number_of_clients);
     virtual ~Game();
-    int maxClients = 3;
+    int maxClients = 2;
     int activeClients = 0;
     void Attach(std::unique_ptr<Client> client);
     void Detach(int client_id);
-    void Notify(int number);
     int getFreeIndex();
     void addIndexToGarbage(int index);
     void garbageCollectorThread();
     void initGarbageCollector();
-    void startGame();
     void wakeupGarbageCollector();
 };
 

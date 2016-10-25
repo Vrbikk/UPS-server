@@ -4,14 +4,6 @@
 
 #include "Client.h"
 
-void Client::Update(int number) {
-    std::cout << number << std::endl;
-}
-
-void Client::sendToAll(int number) {
-    game->Notify(number);
-}
-
 void Client::clientRunner(){
 
     char input[buffer_size];
@@ -21,7 +13,7 @@ void Client::clientRunner(){
 
         if(result <= 0){
             sending_status = false;
-            Disconnection();
+            clientDisconnected();
         }else{
             handleInput(std::string(input));
         }
@@ -46,7 +38,7 @@ Client::~Client() {
     }
 }
 
-void Client::Disconnection() {
+void Client::clientDisconnected() {
     logger->Error("Client conn_id:" + std::to_string(connection_id) + " has disconnected");
     game->addIndexToGarbage(id);
     game->wakeupGarbageCollector();
@@ -55,7 +47,7 @@ void Client::Disconnection() {
 
 void Client::handleInput(std::string input) {
     if(is_valid_message(input)){
-        sendMessage(compose_message(DEBUG, "ahoj"));
+        message msg = decompose_message(input, id);
     }else{
         logger->Error("BAD message! : " + std::string(input));
     }

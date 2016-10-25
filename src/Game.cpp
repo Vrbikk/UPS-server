@@ -22,17 +22,11 @@ void Game::Attach(std::unique_ptr<Client> client) {
 
 void Game::Detach(int client_id) {
     if(client_id < maxClients && client_id >= 0 && clientList.at((unsigned long)client_id) != nullptr){
-        clientList.at((unsigned long) client_id) = nullptr;
+        clientList.at((unsigned long) client_id).reset(nullptr);
         activeClients--;
         logger->Info("client removed with id: " + std::to_string(client_id));
     }else{
         logger->Info("could not remove client - bad index: " + std::to_string(client_id));
-    }
-}
-
-void Game::Notify(int number) {
-    for(int i = 0; i < clientList.size(); i++){
-        clientList.at(i)->Update(number);
     }
 }
 
@@ -45,10 +39,6 @@ int Game::getFreeIndex() {
         counter++;
     }
     return -1;
-}
-
-void Game::startGame() {
-
 }
 
 void Game::garbageCollectorThread() {
@@ -85,7 +75,7 @@ void Game::addIndexToGarbage(int index) {
     garbageQueue.push(index);
 }
 
-Game::Game(std::shared_ptr<Connection> connection_, std::shared_ptr<Logger> logger_) : connection(connection_), logger(logger_) {
+Game::Game(std::shared_ptr<Logger> logger_, int number_of_clients_) :logger(logger_), maxClients(number_of_clients_){
     initGarbageCollector();
 }
 

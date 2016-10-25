@@ -3,17 +3,17 @@
 
 int main(int argc, char *argv[]) {
 
-    std::shared_ptr<Logger> mainLogger = std::make_shared<Logger>("log.log", true);
-    std::unique_ptr<Configuration> config = std::unique_ptr<Configuration>(new Configuration(mainLogger));
+    std::shared_ptr<Logger> mainLogger = std::make_shared<Logger>("log.log", true, true);
+    Configuration config(mainLogger);
     std::vector<std::unique_ptr<Server>> servers;
 
-    if(argc == 2 && config->setUp(argv[1])){
+    if(argc == 2 && config.setUp(argv[1])){
 
         mainLogger->Info("Initializing servers");
 
-        for(int i = 0; i < config->getServerConfigurations().size(); i++){
+        for(int i = 0; i < config.getServerConfigurations().size(); i++){
 
-            server_config server_conf = config->getServerConfigurations().at(i);
+            server_config server_conf = config.getServerConfigurations().at(i);
             std::unique_ptr<Server> server = std::unique_ptr<Server>(new Server(server_conf));
             if(server->initServer()){
                 servers.push_back(std::move(server));

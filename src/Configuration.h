@@ -5,8 +5,6 @@
 #ifndef PLAYGROUND_CONFIGURATION_H
 #define PLAYGROUND_CONFIGURATION_H
 
-#define CONFIG Configuration::getConfiguration()
-
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -20,10 +18,11 @@ struct server_config{
     std::string name = "default";
     int port = 10000;
     int number_of_clients = 2;
+    bool enable_logging = false;
 
     std::string get_server_name()
     {
-        std::string server_name = "Server |" + name + "|-[" + std::to_string(id) + "]";
+        std::string server_name = "Server <" + name + ">-[" + std::to_string(id) + "]";
         return server_name;
     }
 

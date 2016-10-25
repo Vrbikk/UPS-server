@@ -10,8 +10,13 @@
 #include <thread>
 #include <netinet/in.h>
 #include "protocol.h"
+#include <zconf.h>
 
 class Game;
+
+struct client_data{
+    std::string name = "";
+};
 
 class Client {
 private:
@@ -24,7 +29,9 @@ private:
     bool sending_status = true;
     std::shared_ptr<Logger> logger;
 public:
-    std::string name = "";
+
+    client_data data;
+
     int id = -1;
 
     Client(Client const&) = delete;
@@ -32,9 +39,7 @@ public:
     Client(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_, std::shared_ptr<Logger> logger_);
     ~Client();
 
-    void Update(int number);
-    void sendToAll(int number);
-    void Disconnection();
+    void clientDisconnected();
     void clientRunner();
     void initThread();
     void handleInput(std::string input);

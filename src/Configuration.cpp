@@ -12,6 +12,7 @@ Configuration::Configuration(std::shared_ptr<Logger> logger_) : logger(logger_){
     default_server_configuration.id = 0;
     default_server_configuration.name = "default";
     default_server_configuration.number_of_clients = 2;
+    default_server_configuration.enable_logging = false;
 }
 
 bool Configuration::isCommentOrEmpty(std::string line) {
@@ -71,13 +72,14 @@ void Configuration::setIntegerValue(std::string a, int &target, std::string targ
 void Configuration::parseServerConfig(std::string line) {
     std::vector<std::string> items = split(line, ",");
 
-    if(items.size() == 4) {
+    if(items.size() == 5) {
         server_config srv_conf_tmp;
         srv_conf_tmp.name = items[0];
         srv_conf_tmp.number_of_clients = std::stoi(items[1]);
         srv_conf_tmp.port = std::stoi(items[2]);
         srv_conf_tmp.logging_file = items[3];
         srv_conf_tmp.id = (int) server_configurations.size();
+        srv_conf_tmp.enable_logging = (bool)std::stoi(items[4]);
         server_configurations.push_back(srv_conf_tmp);
     }else{
         logger->Error("configuration file corrupted at line: " + line);
