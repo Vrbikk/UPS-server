@@ -47,6 +47,7 @@ public:
     void handleInput(std::string input);
     void sendMessage(message msg);
     void closeConnection();
+    std::string getStatus();
 
 };
 

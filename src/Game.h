@@ -39,21 +39,31 @@ public:
     int maxClients = 2;
     int activeClients = 0;
     void Attach(std::unique_ptr<Client> client);
-    void Detach(int client_id);
+    void Detach(int id);
     int getFreeIndex();
     void addIndexToGarbage(int index);
     void garbageCollectorThread();
     void initGarbageCollector();
     void wakeupGarbageCollector();
-    void resolveMessage(message msg);
 
-    bool tryLogin(int id, std::string name);
+    void resolveMessage(message msg);
+    std::string gameStatus();
+
+
+    //Filip said that this is pretty nice coding style
+    bool clientExists(int id);
+    bool isClientLogged(int id);
+    bool isUniqueLogin(std::string name);
+    void clientLogin(int id, std::string name);
+    bool isEveryoneLogged();
+    bool isClientReady(int id);
+    void clientReady(int id);
+    bool isEveryoneReady();
+    std::string readyList();
+
 
     void sendToOne(int id, message msg);
     void sendToAll(message msg);
-
-
-
 
 };
 

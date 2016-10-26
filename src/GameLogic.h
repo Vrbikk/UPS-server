@@ -17,7 +17,7 @@ class Game;
 
 class GameLogic {
 private:
-    game_state GAME_STATE = NEW;
+    game_state main_game_state = NEW;
     Game *game = nullptr;
     std::shared_ptr<Logger> logger;
 

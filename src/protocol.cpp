@@ -91,6 +91,13 @@ bool advanced_data_validation(message_type type, std::string data) {
                 return false;
             }
         }
+        case READY_C:{
+            if(data.compare("ready") == 0){
+                return true;
+            }else{
+                return false;
+            }
+        }
         case ERROR:{
             return true;
         }

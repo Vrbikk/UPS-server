@@ -11,7 +11,7 @@
 #include "tools.h"
 
 enum message_type{
-    DEBUG, LOGIN_C, LOGIN_S, BROADCAST, READY, ERROR
+    DEBUG, LOGIN_C, LOGIN_S, BROADCAST, READY_C, ERROR
 };
 
 struct message {

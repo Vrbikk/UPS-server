@@ -30,7 +30,7 @@ void Client::initThread() {
 
 Client::~Client() {
     client_running = false;
-
+    sending_status = false;
     closeConnection();
 
     if(client_thread.joinable()){
@@ -39,10 +39,10 @@ Client::~Client() {
 }
 
 void Client::clientDisconnected() {
-    logger->Error("Client conn_id:" + std::to_string(connection_id) + " has disconnected");
+    logger->Error("DISCONNECTED " + getStatus());
     game->addIndexToGarbage(id);
     game->wakeupGarbageCollector();
-    std::this_thread::sleep_for (std::chrono::milliseconds(50));
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
 }
 
 void Client::handleInput(std::string input) {
@@ -67,4 +67,9 @@ void Client::sendMessage(message msg) {
 
 void Client::closeConnection() {
     close(connection_id);
+}
+
+std::string Client::getStatus() {
+    return std::string("Client id:[" + std::to_string(id) + "] name:[" + data.name + "] logged:[" + std::to_string(data.logged)
+    + "] ready:[" + std::to_string(data.ready) + "]");
 }

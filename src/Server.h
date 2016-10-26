@@ -36,6 +36,8 @@ public:
     Server(server_config server_config_);
     ~Server();
     bool initServer();
+
+    std::string getStatus();
 };
 
 

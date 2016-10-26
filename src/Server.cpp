@@ -93,10 +93,16 @@ void Server::acceptingRunner() {
             game->Attach(std::move(client));
         }
     }
-
 }
 
 void Server::initAccepting() {
     accepting_running = true;
     accepting_thread = std::thread(&Server::acceptingRunner, this);
+}
+
+std::string Server::getStatus() {
+    std::string status = server_conf.get_server_name() + " max clients:" + std::to_string(server_conf.number_of_clients) + "\n";
+    status += game->gameStatus();
+
+    return status;
 }

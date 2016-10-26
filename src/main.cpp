@@ -31,8 +31,13 @@ int main(int argc, char *argv[]) {
         std::cin >> input;
 
         if(!input.compare("exit")){
-            mainLogger->Info("shutting down...");
+            mainLogger->Info("shutting down servers...");
             break;
+        }
+        if(!input.compare("status")){
+            for(auto&& a : servers){
+                mainLogger->Info(a->getStatus());
+            }
         }
     }
 
