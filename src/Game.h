@@ -15,6 +15,7 @@
 #include <mutex>
 #include <condition_variable>
 #include "GameLogic.h"
+#include "Configuration.h"
 
 class ClientCommunication;
 class GameLogic;
@@ -34,9 +35,18 @@ struct client{
                                    "] logged:[" + std::to_string(logged) +
                                    "] online:[" + std::to_string(online) + "]");
     }
+
+    void reset(){
+        empty = true;
+        ready = false;
+        logged = false;
+        online = false;
+        name = "";
+        score = 0;
+    }
 };
 
-class Game {
+class Game{
 private:
 
     std::vector<std::unique_ptr<client>> clients;
@@ -50,14 +60,14 @@ private:
     std::thread garbage_collector_thread;
     std::mutex mutex_garbage_collector;
     std::mutex mutex_add_index;
-    std::mutex mutex_input;
+    std::mutex resolve_mutex;
     std::condition_variable cv;
     bool garbage_collector_running = false;
     bool garbage_ready;
     std::shared_ptr<Logger> logger;
 
 public:
-    Game(std::shared_ptr<Logger> logger_, int number_of_clients);
+    Game(std::shared_ptr<Logger> logger_, int number_of_clients, std::vector<question> questions);
     virtual ~Game();
 
     //STATS
@@ -98,13 +108,12 @@ public:
     void ready(unsigned long index);
     bool isEveryoneReady();
 
+    void resetClients();
 
+    //TOOLS
     std::string readyList();
-
     void info();
-
     std::string clientInfo(unsigned long index);
-
     std::string gameStatus();
 
 };

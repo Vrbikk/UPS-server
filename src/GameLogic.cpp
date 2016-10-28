@@ -4,8 +4,12 @@
 
 #include "GameLogic.h"
 
-GameLogic::GameLogic(Game *game_, std::shared_ptr<Logger> logger_) : game(game_), logger(logger_) {
+GameLogic::GameLogic(Game *game_, std::shared_ptr<Logger> logger_, std::vector<question> questions_) :
+                    game(game_), logger(logger_), all_questions(questions_) {
 
+    logger->Info("GameLogic loaded " + std::to_string(all_questions.size()) + " all_questions");
+    number_of_questions = game->maxClients * 3;
+    shuffleQuestions();
 }
 
 void GameLogic::input(event e) {
@@ -15,20 +19,30 @@ void GameLogic::input(event e) {
 
     switch(main_game_state){
         case GETTING_READY:{
-            if(e.e_type == EVENT_message && e.msg.m_type == READY_C && !game->isClientReady(e.id.index)){
-                game->ready(e.id.index);
-                game->sendToAllClients(compose_message(BROADCAST, game->readyList()));
-            }else{
-                logger->Error("bad game input");
-            }
+            if(e.e_type == EVENT_message){
+                if(e.msg.m_type == READY_C && !game->isClientReady(e.id.index)){
+                    game->ready(e.id.index);
+                    game->sendToAllClients(compose_message(BROADCAST, game->readyList()));
+                }else{
+                    logger->Error("bad game input");
+                }
 
-            if(game->isEveryoneReady()){
-                main_game_state = PLAYING;
-                game->sendToAllClients(compose_message(BROADCAST, "game started"));
+                if(game->isEveryoneReady()){
+                    logger->Info("Everyone is ready, game started");
+                    main_game_state = PLAYING;
+                    game->sendToAllClients(compose_message(BROADCAST, "game started"));
+                }
             }
             break;
         }
         case PLAYING:{
+            if(e.e_type == EVENT_client_disconnected){
+
+                if(game->activeClients < 2){
+                    resetGameLogic();
+                }
+            }
+
 
             break;
         }
@@ -38,5 +52,14 @@ void GameLogic::input(event e) {
             break;
         }
     }
+}
 
+void GameLogic::resetGameLogic() {
+    main_game_state = GETTING_READY;
+}
+
+void GameLogic::shuffleQuestions() {
+    actual_questions = all_questions;
+    std::random_shuffle(actual_questions.begin(), actual_questions.end());
+    actual_questions.resize(number_of_questions);
 }

@@ -30,13 +30,18 @@ bool Configuration::setUp(const std::string path) {
         std::string line;
 
         while(getline(file, line)){
-            clear_string(line);
+
 
             if(!isCommentOrEmpty(line)){
                 std::string type, value;
                 setTypeAndValue(line, type, value);
                         // c++ does not support switching for string so... :(
-                if(!type.compare("server")){parseServerConfig(value);}
+                if(!type.compare("server")){
+                    clear_string(value);
+                    parseServerConfig(value);
+                }else if(!type.compare("question")){
+                    parseQuestion(value);
+                }
                 //else if(!m_type.compare("number_of_clients")){setIntegerValue(value, number_of_clients, "number_of_clients");}
                 //else if(!m_type.compare("input_buffer_size")){setIntegerValue(value, input_buffer_size, "input_buffer_size");}
             }
@@ -76,6 +81,12 @@ void Configuration::parseServerConfig(std::string line) {
         server_config srv_conf_tmp;
         srv_conf_tmp.name = items[0];
         srv_conf_tmp.number_of_clients = std::stoi(items[1]);
+
+        if(srv_conf_tmp.number_of_clients < 2){
+            logger->Error("Number of players must be at least 2!");
+            srv_conf_tmp.number_of_clients = 2;
+        }
+
         srv_conf_tmp.port = std::stoi(items[2]);
         srv_conf_tmp.logging_file = items[3];
         srv_conf_tmp.id = (int) server_configurations.size();
@@ -89,5 +100,24 @@ void Configuration::parseServerConfig(std::string line) {
 std::vector<server_config> Configuration::getServerConfigurations() {
     return server_configurations;
 }
+
+void Configuration::parseQuestion(std::string value) {
+    std::vector<std::string> q = split(value, Q_DELIMETER);
+
+    if(q.size() == 3){
+        question tmp_q;
+        tmp_q.question = q[0];
+        tmp_q.answer = q[1];
+        tmp_q.points = std::stoi(q[2]);
+
+        questions.push_back(tmp_q);
+    }
+}
+
+std::vector<question> Configuration::getQuestions() {
+    return questions;
+}
+
+
 
 

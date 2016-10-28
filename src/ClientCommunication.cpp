@@ -73,6 +73,5 @@ void ClientCommunication::closeConnection() {
 
 std::string ClientCommunication::getStatus() {
     return std::string("CC status id:[" + id.print() + "]" + " socket_number:[" + std::to_string(socket_number)
-                       + "] listener_running:[" + std::to_string(listener_running) + "] sending_permission:[" +
-                        std::to_string(sending_permission) + "]");
+                       + "] listener_running:[" + std::to_string(listener_running) + "]");
 }

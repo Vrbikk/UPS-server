@@ -34,7 +34,11 @@ void Game::Detach(client_id id) {
 
         logger->Info("Removing active client: " + clients.at(id.index)->print());
         clients.at(id.index)->communication.reset(nullptr);
+
+        sendToAllClients(compose_message(BROADCAST, clients.at(id.index)->name + " has disconnected"));
+
         decrementActiveClients();
+
     }else{
         logger->Info("could not remove client");
     }
@@ -83,10 +87,10 @@ void Game::addToGarbage(client_id id) {
     garbageQueue.push(id);
 }
 
-Game::Game(std::shared_ptr<Logger> logger_, int number_of_clients_) :logger(logger_), maxClients(number_of_clients_){
+Game::Game(std::shared_ptr<Logger> logger_, int number_of_clients_, std::vector<question> questions) :
+        logger(logger_), maxClients(number_of_clients_){
     initGarbageCollector();
-    gameLogic = std::unique_ptr<GameLogic>(new GameLogic(this, logger));
-
+    gameLogic = std::unique_ptr<GameLogic>(new GameLogic(this, logger, questions));
     clients = std::vector<std::unique_ptr<client>>((unsigned long)maxClients);
 
     for(int i = 0; i < maxClients; i++){
@@ -106,19 +110,19 @@ Game::~Game() {
 }
 
 void Game::resolveEvent(event e) {
-    std::lock_guard<std::mutex> lk(mutex_input);
+    std::lock_guard<std::mutex> lk(resolve_mutex);
 
     switch(e.e_type){
         case EVENT_message:{
             if(e.msg.m_type == LOGIN_C && e.id.pending){
                 login(e);
             }else if(!e.id.pending){
-                gameLogic->input(e);
+                gameLogic->input(e); //passing events to the game
             }
             break;
         }
-        case EVENT_disconnected:{
-
+        case EVENT_client_disconnected:{
+            gameLogic->input(e); //special events for client disconnection
             break;
         }
         default:{
@@ -298,6 +302,13 @@ void Game::incrementActiveClients() {
 void Game::decrementActiveClients() {
     activeClients--;
     logger->Info("Active Clients changed: " + std::to_string(activeClients) + "/" + std::to_string(maxClients));
+
+    if(activeClients == 0){
+        resetClients();
+    }else if(activeClients >= 1){
+        resolveEvent(disconnection_event());
+    }
+
 }
 
 std::string Game::clientInfo(unsigned long index) {
@@ -307,5 +318,14 @@ std::string Game::clientInfo(unsigned long index) {
 void Game::info() {
     for(auto &&client : clients){
         logger->Info("info:" + client->print());
+    }
+}
+
+void Game::resetClients() {
+
+    logger->Info("0 active clients, resetting clients");
+
+    for(auto &&client : clients){
+        client->reset();
     }
 }

@@ -38,6 +38,13 @@ event make_event(event_type e_type, message msg, client_id id){
     return e;
 }
 
+event disconnection_event(){
+    event e;
+    e.e_type = EVENT_client_disconnected;
+
+    return e;
+}
+
 bool is_valid_message(std::string input) {
 
     if(input.empty() || (input.at(0) == '\0') || input.size() > 300){

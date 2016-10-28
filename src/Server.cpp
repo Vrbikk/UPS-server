@@ -4,7 +4,7 @@
 
 #include "Server.h"
 
-Server::Server(server_config server_config_) : server_conf(server_config_) {
+Server::Server(server_config server_config_, std::vector<question> questions_) : server_conf(server_config_), questions(questions_){
     logger = std::make_shared<Logger>(server_conf.logging_file, true, server_conf.enable_logging);
     logger->Info("--- " + server_conf.get_server_name() + " started ---");
     logger->Info(server_conf.get_server_params());
@@ -26,7 +26,7 @@ Server::~Server() {
 
 bool Server::initServer() {
     if(initConnection(server_conf.port)){
-        game = std::make_shared<Game>(logger, server_conf.number_of_clients);
+        game = std::make_shared<Game>(logger, server_conf.number_of_clients, questions);
         initAccepting();
         return true;
     }else{

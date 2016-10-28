@@ -1,0 +1,44 @@
+#config
+
+#servers: name, number of clients, port, logging file, log?
+
+server: Raven, 3, 10000, Raven.log, 1
+server: Piko, 2, 10001, Piko.log, 1
+
+question:Who is next American President?-Trump-100
+question:How much is 5 + 5?-10-50
+question:Best subject on FAV?-UPS-300
+question:Best teacher on FAV?-Valach-300
+question:Where are muslims?-Germany-150
+question:Who is Bambinek?-Denis-500
+question:Who is next American President?-Trump-100
+question:How much is 5 + 5?-10-50
+question:Best subject on FAV?-UPS-300
+question:Best teacher on FAV?-Valach-300
+question:Where are muslims?-Germany-150
+question:Who is Bambinek?-Denis-500
+question:Who is next American President?-Trump-100
+question:How much is 5 + 5?-10-50
+question:Best subject on FAV?-UPS-300
+question:Best teacher on FAV?-Valach-300
+question:Where are muslims?-Germany-150
+question:Who is Bambinek?-Denis-500
+question:Who is next American President?-Trump-100
+question:How much is 5 + 5?-10-50
+question:Best subject on FAV?-UPS-300
+question:Best teacher on FAV?-Valach-300
+question:Where are muslims?-Germany-150
+question:Who is Bambinek?-Denis-500
+question:Who is next American President?-Trump-100
+question:How much is 5 + 5?-10-50
+question:Best subject on FAV?-UPS-300
+question:Best teacher on FAV?-Valach-300
+question:Where are muslims?-Germany-150
+question:Who is Bambinek?-Denis-500
+question:Who is next American President?-Trump-100
+question:How much is 5 + 5?-10-50
+question:Best subject on FAV?-UPS-300
+question:Best teacher on FAV?-Valach-300
+question:Where are muslims?-Germany-150
+question:Who is Bambinek?-Denis-500
+

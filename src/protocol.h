@@ -11,7 +11,7 @@
 #include "tools.h"
 
 enum event_type{
-    EVENT_message, EVENT_disconnected
+    EVENT_message, EVENT_client_disconnected
 };
 
 enum message_type{
@@ -54,6 +54,7 @@ message compose_message(message_type type_, int data);
 message compose_message(message_type type_, std::string data_);
 message decompose_message(std::string input);
 event make_event(event_type e_type, message msg, client_id id);
+event disconnection_event();
 
 bool is_valid_message(std::string input);
 

@@ -22,10 +22,9 @@ private:
 
     bool accepting_running = false;
     std::thread accepting_thread;
-
     std::shared_ptr<Game> game;
     std::shared_ptr<Logger> logger;
-
+    std::vector<question> questions;
     server_config server_conf;
 
 public:
@@ -33,7 +32,7 @@ public:
     void acceptingRunner();
     void initAccepting();
 
-    Server(server_config server_config_);
+    Server(server_config server_config_, std::vector<question> questions_);
     ~Server();
     bool initServer();
 
