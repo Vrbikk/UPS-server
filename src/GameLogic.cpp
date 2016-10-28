@@ -45,6 +45,7 @@ void GameLogic::input(message msg) {
 
             if(game->isEveryoneReady()){
                 main_game_state = PLAYING;
+                logger->Info("GAME STATE changed to PLAYING");
                 game->sendToAll(compose_message(BROADCAST, "-GAME STARTED-"));
             }
             break;

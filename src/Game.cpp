@@ -12,6 +12,8 @@ void Game::Attach(std::unique_ptr<Client> client) {
 
         client->id = (int)index;
         clientList.at(index) = std::move(client);
+
+
         clientList.at(index)->initThread();
         activeClients++;
     }else{
@@ -82,6 +84,7 @@ Game::Game(std::shared_ptr<Logger> logger_, int number_of_clients_) :logger(logg
     initGarbageCollector();
     gameLogic = std::unique_ptr<GameLogic>(new GameLogic(this, logger));
     clientList = std::vector<std::unique_ptr<Client>>(maxClients);
+
 }
 
 Game::~Game() {
@@ -209,7 +212,7 @@ void Game::clientReady(int id) {
 
 bool Game::isEveryoneReady() {
     for(auto &&a: clientList){
-        if(a == nullptr || a->data.ready){
+        if(a == nullptr || !a->data.ready){
             return false;
         }
     }

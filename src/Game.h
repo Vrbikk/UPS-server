@@ -16,6 +16,11 @@
 #include <condition_variable>
 #include "GameLogic.h"
 
+struct clientGameData{
+    int score = 0;
+    bool online = false;
+};
+
 class Client;
 class GameLogic;
 
@@ -23,6 +28,9 @@ class Game {
 private:
     std::unique_ptr<GameLogic> gameLogic;
     std::vector<std::unique_ptr<Client>> clientList;
+
+
+
     std::queue<int> garbageQueue;
     std::thread garbage_collector_thread;
     std::mutex mutex_garbage_collector;
@@ -50,7 +58,7 @@ public:
     std::string gameStatus();
 
 
-    //Filip said that this is pretty nice coding style
+    //Filip said that this is pretty nice coding style and I trust him cuz he is my friend <3
     bool clientExists(int id);
     bool isClientLogged(int id);
     bool isUniqueLogin(std::string name);
