@@ -8,54 +8,33 @@ GameLogic::GameLogic(Game *game_, std::shared_ptr<Logger> logger_) : game(game_)
 
 }
 
-void GameLogic::input(message msg) {
+void GameLogic::input(event e) {
 
-    logger->Info("INPUT- " + msg.print());
+    logger->Info("game logic input | " + game->clientInfo(e.id.index) + e.print());
+    game->info();
 
     switch(main_game_state){
-        case NEW:{
-            if(msg.type == LOGIN_C && !game->isClientLogged(msg.client_id)){
-                if(game->isUniqueLogin(msg.data)){
-                    game->clientLogin(msg.client_id, msg.data);
-                    game->sendToOne(msg.client_id, compose_message(LOGIN_S, std::to_string(msg.client_id)));
-                }else{
-                    game->sendToOne(msg.client_id, compose_message(ERROR, "nickname already used"));
-                }
-            }else{
-                logger->Error("GAME STATE ERROR | CLIENT ALREADY LOGGED - " + msg.print());
-            }
-
-            if(game->isEveryoneLogged()){
-                main_game_state = GETTING_READY;
-                logger->Info("GAME STATE changed to GETTING READY");
-                game->sendToAll(compose_message(BROADCAST, "Players are connected"));
-                game->sendToAll(compose_message(BROADCAST, game->readyList()));
-            }
-
-            break;
-        };
         case GETTING_READY:{
-            if(msg.type == READY_C && !game->isClientReady(msg.client_id)){
-                game->clientReady(msg.client_id);
-                game->sendToAll(compose_message(BROADCAST, game->readyList()));
-
+            if(e.e_type == EVENT_message && e.msg.m_type == READY_C && !game->isClientReady(e.id.index)){
+                game->ready(e.id.index);
+                game->sendToAllClients(compose_message(BROADCAST, game->readyList()));
             }else{
-                logger->Error("GAME STATE ERROR | CLIENT ALREADY READY" + msg.print());
+                logger->Error("bad game input");
             }
 
             if(game->isEveryoneReady()){
                 main_game_state = PLAYING;
-                logger->Info("GAME STATE changed to PLAYING");
-                game->sendToAll(compose_message(BROADCAST, "-GAME STARTED-"));
+                game->sendToAllClients(compose_message(BROADCAST, "game started"));
             }
             break;
         }
         case PLAYING:{
 
+            break;
         }
 
-
         default:{
+            logger->Error("Unexpected main_game_state");
             break;
         }
     }

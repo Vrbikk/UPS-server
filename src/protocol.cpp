@@ -6,7 +6,7 @@
 
 message compose_message(message_type type_, std::string data_) {
     message msg;
-    msg.type = type_;
+    msg.m_type = type_;
     msg.data = data_;
     std::string msg_body = ":" + std::to_string(type_) + ":" + data_ + ";";
     int body_size = (int)msg_body.size();
@@ -15,16 +15,27 @@ message compose_message(message_type type_, std::string data_) {
     return msg;
 }
 
-message decompose_message(std::string input, int client_id) {
+message compose_message(message_type type_, int data){
+    return compose_message(type_, std::to_string(data));
+}
+
+message decompose_message(std::string input) {
     message msg;
     std::vector<std::string> items = split(get_message(input), ":");
-
     msg.len = std::stoi(items[0]);
-    msg.type = static_cast<message_type>(std::stoi(items[1]));
+    msg.m_type = static_cast<message_type>(std::stoi(items[1]));
     msg.data = items[2];
-    msg.client_id = client_id;
 
     return msg;
+}
+
+event make_event(event_type e_type, message msg, client_id id){
+    event e;
+    e.e_type = e_type;
+    e.msg = msg;
+    e.id = id;
+
+    return e;
 }
 
 bool is_valid_message(std::string input) {
@@ -44,12 +55,12 @@ bool is_valid_message(std::string input) {
     std::vector<std::string> items = split(message, ":");
 
     if(items.empty() || items.size() != 3){
-      //  LOGGER->Error("not valid - items do not fit");
+      //  LOGGER->Error("not valid - items do not fit"); and if i fit i sit
         return false;
     }
 
     if(!is_number(items[0]) || !is_number(items[1])){
-      //  LOGGER->Error("not valid - type or len are not numbers");
+      //  LOGGER->Error("not valid - m_type or len are not numbers");
         return false;
     }
 
@@ -62,7 +73,7 @@ bool is_valid_message(std::string input) {
     }
 
     if(!(type >= DEBUG && type <= ERROR)) {
-      //  LOGGER->Error("not valid - unknown type of message");
+      //  LOGGER->Error("not valid - unknown m_type of message");
         return false;
     }
 

@@ -88,9 +88,9 @@ void Server::acceptingRunner() {
         connection_id = accept(server_socket, (struct sockaddr *) &client_address, &size);
 
         if(connection_id > 0){
-            std::unique_ptr<Client> client = std::unique_ptr<Client>(new Client(
+            std::unique_ptr<ClientCommunication> client_communication = std::unique_ptr<ClientCommunication>(new ClientCommunication(
                     connection_id, client_address, game, logger));
-            game->Attach(std::move(client));
+            game->Attach(std::move(client_communication));
         }
     }
 }

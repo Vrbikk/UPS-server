@@ -10,20 +10,20 @@
 #include "Game.h"
 
 enum game_state{
-    NEW, LOGGING, GETTING_READY, PLAYING
+    GETTING_READY, PLAYING
 };
 
 class Game;
 
 class GameLogic {
 private:
-    game_state main_game_state = NEW;
+    game_state main_game_state = GETTING_READY;
     Game *game = nullptr;
     std::shared_ptr<Logger> logger;
 
 public:
     GameLogic(Game *game_, std::shared_ptr<Logger> logger_);
-    void input(message msg);
+    void input(event e);
 };
 
 

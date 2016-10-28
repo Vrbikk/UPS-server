@@ -4,44 +4,49 @@
 
 #include "Game.h"
 
-void Game::Attach(std::unique_ptr<Client> client) {
-    if(activeClients < maxClients){
-        unsigned long index = (unsigned long) getFreeIndex();
+void Game::Attach(std::unique_ptr<ClientCommunication> client_communication) {
 
-        logger->Info("client added with id: " + std::to_string(index));
-
-        client->id = (int)index;
-        clientList.at(index) = std::move(client);
-
-
-        clientList.at(index)->initThread();
-        activeClients++;
+    int pending_index = getFreePendingPosition();
+    if(pending_index >= 0){
+        logger->Info("Adding client to pending: with id:" + std::to_string(pending_index));
+        client_communication->id.index = pending_index;
+        pendingClients.at((unsigned long)pending_index) = std::move(client_communication);
+        pendingClients.at((unsigned long)pending_index)->initThread();
     }else{
-        logger->Error("Could not add more clients: " + std::to_string(activeClients) + "|" + std::to_string(maxClients));
-        client->sendMessage(compose_message(ERROR, "Server is full"));
+        logger->Error("Could not add more clients to pending.");
+        client_communication->sendMessage(compose_message(ERROR, "Server queue is full!"));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        std::this_thread::sleep_for (std::chrono::milliseconds(50)); // not fuckign working without this :'(
-
+        //now the client_communication destructor is called
     }
 }
 
-void Game::Detach(int id) {
-    if(clientExists(id)){
-        clientList.at((unsigned long) id) = nullptr;
-        activeClients--;
-        logger->Info("REMOVING CLIENT with id: " + std::to_string(id));
+void Game::Detach(client_id id) {
+
+    if(id.pending && pendingClients.at(id.index) != nullptr){
+        logger->Info("Removing pending client: " + std::to_string(id.index));
+        pendingClients.at(id.index).reset(nullptr);
+    }
+    else if(!id.pending && clients.at(id.index)->communication != nullptr){
+
+        clients.at(id.index)->online = false;
+        clients.at(id.index)->ready = false;
+
+        logger->Info("Removing active client: " + clients.at(id.index)->print());
+        clients.at(id.index)->communication.reset(nullptr);
+        decrementActiveClients();
     }else{
-        logger->Info("could not remove client - already nullptr id:" + std::to_string(id));
+        logger->Info("could not remove client");
     }
 }
 
-int Game::getFreeIndex() {
-    int counter = 0;
-    for(auto&& a: clientList){
-        if(!a){
-            return counter;
+int Game::getFreePendingPosition() {
+    int index = 0;
+    for(auto&& client: pendingClients){
+         if(!client){
+             return index;
         }
-        counter++;
+        index++;
     }
     return -1;
 }
@@ -68,23 +73,27 @@ void Game::initGarbageCollector() {
 }
 
 void Game::wakeupGarbageCollector() {
-    {
-        std::lock_guard<std::mutex> lk(mutex_garbage_collector);
-        garbage_ready = true;
-    }
+    std::lock_guard<std::mutex> lk(mutex_garbage_collector);
+    garbage_ready = true;
     cv.notify_one();
 }
 
-void Game::addIndexToGarbage(int index) {
+void Game::addToGarbage(client_id id) {
     std::lock_guard<std::mutex> lk(mutex_add_index);
-    garbageQueue.push(index);
+    garbageQueue.push(id);
 }
 
 Game::Game(std::shared_ptr<Logger> logger_, int number_of_clients_) :logger(logger_), maxClients(number_of_clients_){
     initGarbageCollector();
     gameLogic = std::unique_ptr<GameLogic>(new GameLogic(this, logger));
-    clientList = std::vector<std::unique_ptr<Client>>(maxClients);
 
+    clients = std::vector<std::unique_ptr<client>>((unsigned long)maxClients);
+
+    for(int i = 0; i < maxClients; i++){
+        clients.at(i) = std::move(std::unique_ptr<client>(new client));
+    }
+
+    pendingClients = std::vector<std::unique_ptr<ClientCommunication>>((unsigned long)maxClients);
 }
 
 Game::~Game() {
@@ -96,58 +105,41 @@ Game::~Game() {
     }
 }
 
-void Game::resolveMessage(message msg) {
+void Game::resolveEvent(event e) {
     std::lock_guard<std::mutex> lk(mutex_input);
-    gameLogic->input(msg);
-}
 
-bool Game::isUniqueLogin(std::string name) {
-    for(int i = 0; i < maxClients; i++){
-        if(clientList.at(i) != nullptr){
-            if(clientList.at(i)->data.logged && clientList.at(i)->data.name.compare(name) == 0){
-                logger->Error("same login detected");
-                return false;
+    switch(e.e_type){
+        case EVENT_message:{
+            if(e.msg.m_type == LOGIN_C && e.id.pending){
+                login(e);
+            }else if(!e.id.pending){
+                gameLogic->input(e);
             }
+            break;
+        }
+        case EVENT_disconnected:{
+
+            break;
+        }
+        default:{
+            logger->Error("Unexpected event type");
+            break;
         }
     }
-
-    return true;
 }
 
-void Game::clientLogin(int id, std::string name) {
-    if(clientExists(id)){
-        clientList.at(id)->data.logged = true;
-        clientList.at(id)->data.name = name;
-        logger->Info("LOGGED: " + clientList.at(id)->getStatus());
+void Game::sendMessageToClient(unsigned long index, message msg) {
+    if(clients.at(index)->online){
+        clients.at(index)->communication->sendMessage(msg);
     }else{
-        logger->Error("could not LOGIN client - nullptr at id" + std::to_string(id));
+        logger->Error("Attempt to send message to offline client");
     }
-}
-
-void Game::sendToOne(int id, message msg) {
-    if(clientList.at(id) != nullptr){
-        clientList.at(id)->sendMessage(msg);
-    }else{
-        logger->Error("could not SEND message - nullptr at id" + std::to_string(id));
-    }
-}
-
-bool Game::isClientLogged(int id) {
-    if(clientExists(id)){
-        return clientList.at(id)->data.logged;
-    }else{
-        logger->Error("could not detect logged state - nullptr at id:" + std::to_string(id));
-    }
-}
-
-bool Game::clientExists(int id) {
-    return clientList.at(id) != nullptr;
 }
 
 std::string Game::gameStatus() {
     std::string game_status = "";
 
-    for(auto &&a: clientList){
+    for(auto &&a: pendingClients){
         if(a == nullptr){
             game_status += "----EMPTY----\n";
         }else{
@@ -158,34 +150,25 @@ std::string Game::gameStatus() {
     return  game_status;
 }
 
-bool Game::isEveryoneLogged() {
-    for(auto &&a: clientList){
-        if(a == nullptr || !a->data.logged){
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void Game::sendToAll(message msg) {
-    for(auto &&a : clientList){
-        if(a != nullptr){
-            a->sendMessage(msg);
+void Game::sendToAllClients(message msg) {
+    for(auto &&client : clients){
+        if(client->online){
+            client->communication->sendMessage(msg);
         }
     }
 }
 
 std::string Game::readyList() {
-    std::string list = "/---ready_list---/";
+    std::string list = "---ready_list---";
 
-    for(auto &&a : clientList){
-        if(a != nullptr){
-            list += a->data.name + " - ";
-            if(a->data.ready){
-                list += "ready/";
+    for(auto &&client : clients){
+        if(client->online && client->ready){
+            list += "/(" + client->name + ") - ready";
+        }else{
+            if(client->logged) {
+                list += "/(" + client->name + ") - not ready";
             }else{
-                list += "not ready/";
+                list += "/[waiting] - not ready";
             }
         }
     }
@@ -193,34 +176,136 @@ std::string Game::readyList() {
     return list;
 }
 
-bool Game::isClientReady(int id) {
-    if(clientExists(id)){
-        return clientList.at(id)->data.ready;
-    }else{
-        logger->Error("could not detect ready state - nullptr at id:" + std::to_string(id));
-    }
+bool Game::isClientReady(unsigned long index) {
+    return clients.at(index)->ready;
 }
 
-void Game::clientReady(int id) {
-    if(clientExists(id)){
-        clientList.at(id)->data.ready = true;
-        logger->Info("READY: " + clientList.at(id)->getStatus());
+void Game::ready(unsigned long index) {
+    if(clients.at(index)->online && clients.at(index)->logged && !clients.at(index)->ready){
+        clients.at(index)->ready = true;
+        sendMessageToClient(index, compose_message(READY_S, "ok"));
     }else{
-        logger->Error("could not READY - nullptr at id" + std::to_string(id));
+        logger->Error("Could not set ready to the client: " + clients.at(index)->print());
     }
 }
 
 bool Game::isEveryoneReady() {
-    for(auto &&a: clientList){
-        if(a == nullptr || !a->data.ready){
+    for(auto &&client: clients){
+        if(!client->ready){
             return false;
         }
     }
-
     return true;
 }
 
+int Game::getFreeActivePosition() {
+    int index = 0;
+    for(auto&& client: clients){
+        if(client->empty){
+            return index;
+        }
+        index++;
+    }
+    return -1;
+}
 
+int Game::getLoggedPosition(std::string name) {
+    int index = 0;
+    for(auto&& client: clients){
+        if(!client->empty && !client->online && client->name.compare(name) == 0){
+            return index;
+        }
+        index++;
+    }
+    return -1;
+}
 
+bool Game::isDuplicatedLogin(std::string name) {
+    for(auto&& client: clients){
+        if(!client->empty && client->online && client->name.compare(name) == 0){
+            return true;
+        }
+    }
+    return false;
+}
 
+void Game::renewClient(unsigned long logged_index, event e) {
+    logger->Info("Renewing client with name: " + clients.at(logged_index)->name);
 
+    moveLoggedClient(e.id.index, logged_index);
+
+    clients.at(logged_index)->online = true;
+
+    sendMessageToClient(logged_index, compose_message(UNICAST_S, "welcome back!"));
+    sendMessageToClient(logged_index, compose_message(LOGIN_S, (int)logged_index));
+
+    incrementActiveClients();
+}
+
+void Game::loginNewClient(unsigned long new_index, event e) {
+
+    logger->Info("Logging new client with name: " + e.msg.data);
+
+    moveLoggedClient(e.id.index, new_index);
+
+    clients.at(new_index)->empty = false;
+    clients.at(new_index)->online = true;
+    clients.at(new_index)->logged = true;
+    clients.at(new_index)->name = e.msg.data;
+
+    sendMessageToClient(new_index, compose_message(UNICAST_S, "Welcome on the server!"));
+    sendMessageToClient(new_index, compose_message(LOGIN_S, new_index));
+
+    incrementActiveClients();
+}
+
+void Game::login(event e) {
+    int logged_index = getLoggedPosition(e.msg.data);
+
+    if(logged_index >= 0){
+        renewClient((unsigned long)logged_index, e);
+    }
+    else if(!isDuplicatedLogin(e.msg.data)){
+        int new_index = getFreeActivePosition();
+        if(new_index >= 0){
+            loginNewClient((unsigned long)new_index, e);
+        }else{
+            logger->Error("Bad login attempt, Server is full, login name: " + e.msg.data);
+            sendMessageToPendingClient(e.id.index, compose_message(UNICAST_S, "Server is full!"));
+        }
+    }else{
+        logger->Error("Bad login attempt, Server already have player: " + e.msg.data);
+        sendMessageToPendingClient(e.id.index, compose_message(UNICAST_S, "Name already used!"));
+    }
+
+}
+
+void Game::moveLoggedClient(unsigned long pending_index, unsigned long active_index) {
+    clients.at(active_index)->communication = std::move(pendingClients.at(pending_index));
+    clients.at(active_index)->communication->id.index = active_index;
+    clients.at(active_index)->communication->id.pending = false;
+}
+
+void Game::sendMessageToPendingClient(unsigned long pending_index, message msg) {
+    pendingClients.at(pending_index)->sendMessage(msg);
+}
+
+void Game::incrementActiveClients() {
+    activeClients++;
+    logger->Info("Active Clients changed: " + std::to_string(activeClients) + "/" + std::to_string(maxClients));
+}
+
+void Game::decrementActiveClients() {
+    activeClients--;
+    logger->Info("Active Clients changed: " + std::to_string(activeClients) + "/" + std::to_string(maxClients));
+}
+
+std::string Game::clientInfo(unsigned long index) {
+    return clients.at(index)->print();
+}
+
+void Game::info() {
+    for(auto &&client : clients){
+        logger->Info("info:" + client->print());
+    }
+}

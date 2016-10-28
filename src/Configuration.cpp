@@ -37,8 +37,8 @@ bool Configuration::setUp(const std::string path) {
                 setTypeAndValue(line, type, value);
                         // c++ does not support switching for string so... :(
                 if(!type.compare("server")){parseServerConfig(value);}
-                //else if(!type.compare("number_of_clients")){setIntegerValue(value, number_of_clients, "number_of_clients");}
-                //else if(!type.compare("input_buffer_size")){setIntegerValue(value, input_buffer_size, "input_buffer_size");}
+                //else if(!m_type.compare("number_of_clients")){setIntegerValue(value, number_of_clients, "number_of_clients");}
+                //else if(!m_type.compare("input_buffer_size")){setIntegerValue(value, input_buffer_size, "input_buffer_size");}
             }
         }
 

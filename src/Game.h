@@ -5,7 +5,7 @@
 #ifndef SERVER2_GAME_H
 #define SERVER2_GAME_H
 
-#include "Client.h"
+#include "ClientCommunication.h"
 #include "Logger.h"
 #include <thread>
 #include <memory>
@@ -16,22 +16,37 @@
 #include <condition_variable>
 #include "GameLogic.h"
 
-struct clientGameData{
-    int score = 0;
-    bool online = false;
-};
-
-class Client;
+class ClientCommunication;
 class GameLogic;
+
+struct client{
+    bool empty = true;
+    bool ready = false;
+    bool logged = false;
+    bool online = false;
+    std::string name = "";
+    int score = 0;
+    std::unique_ptr<ClientCommunication> communication;
+
+    std::string print(){
+        return std::string("CLIENT - name:[" + name +
+                                   "] ready:[" + std::to_string(ready) +
+                                   "] logged:[" + std::to_string(logged) +
+                                   "] online:[" + std::to_string(online) + "]");
+    }
+};
 
 class Game {
 private:
+
+    std::vector<std::unique_ptr<client>> clients;
+
     std::unique_ptr<GameLogic> gameLogic;
-    std::vector<std::unique_ptr<Client>> clientList;
 
+    std::vector<std::unique_ptr<ClientCommunication>> pendingClients;
 
+    std::queue<client_id> garbageQueue;
 
-    std::queue<int> garbageQueue;
     std::thread garbage_collector_thread;
     std::mutex mutex_garbage_collector;
     std::mutex mutex_add_index;
@@ -44,34 +59,53 @@ private:
 public:
     Game(std::shared_ptr<Logger> logger_, int number_of_clients);
     virtual ~Game();
-    int maxClients = 2;
+
+    //STATS
+    int maxClients = 0;
     int activeClients = 0;
-    void Attach(std::unique_ptr<Client> client);
-    void Detach(int id);
-    int getFreeIndex();
-    void addIndexToGarbage(int index);
+    void incrementActiveClients();
+    void decrementActiveClients();
+
+    //OBSERVERS MANIPULATION
+    void Attach(std::unique_ptr<ClientCommunication> client_communication);
+    void Detach(client_id id);
+
+    //GARBAGE COLLECTOR
+    void addToGarbage(client_id id);
     void garbageCollectorThread();
     void initGarbageCollector();
     void wakeupGarbageCollector();
 
-    void resolveMessage(message msg);
-    std::string gameStatus();
+    void resolveEvent(event e);
 
+    //LOGING
+    void login(event e);
+    int getFreePendingPosition();
+    int getFreeActivePosition();
+    int getLoggedPosition(std::string name);
+    bool isDuplicatedLogin(std::string name);
+    void renewClient(unsigned long logged_index, event e);
+    void loginNewClient(unsigned long new_index, event e);
+    void moveLoggedClient(unsigned long pending_index, unsigned long active_index);
 
-    //Filip said that this is pretty nice coding style and I trust him cuz he is my friend <3
-    bool clientExists(int id);
-    bool isClientLogged(int id);
-    bool isUniqueLogin(std::string name);
-    void clientLogin(int id, std::string name);
-    bool isEveryoneLogged();
-    bool isClientReady(int id);
-    void clientReady(int id);
+    //SENDING
+    void sendMessageToPendingClient(unsigned long pending_index, message msg);
+    void sendMessageToClient(unsigned long index, message msg);
+    void sendToAllClients(message msg);
+
+    //READY
+    bool isClientReady(unsigned long index);
+    void ready(unsigned long index);
     bool isEveryoneReady();
+
+
     std::string readyList();
 
+    void info();
 
-    void sendToOne(int id, message msg);
-    void sendToAll(message msg);
+    std::string clientInfo(unsigned long index);
+
+    std::string gameStatus();
 
 };
 
