@@ -31,11 +31,12 @@ void Game::Detach(client_id id) {
 
         clients.at(id.index)->online = false;
         clients.at(id.index)->ready = false;
+        clients.at(id.index)->logged = false;
 
         logger->Info("Removing active client: " + clients.at(id.index)->print());
         clients.at(id.index)->communication.reset(nullptr);
 
-        sendToAllClients(compose_message(BROADCAST, clients.at(id.index)->name + " has disconnected"));
+        sendMessageToAllClients(compose_message(BROADCAST, getClientName(id.index) + " has disconnected!"));
 
         decrementActiveClients();
 
@@ -154,7 +155,7 @@ std::string Game::gameStatus() {
     return  game_status;
 }
 
-void Game::sendToAllClients(message msg) {
+void Game::sendMessageToAllClients(message msg) {
     for(auto &&client : clients){
         if(client->online){
             client->communication->sendMessage(msg);
@@ -169,7 +170,7 @@ std::string Game::readyList() {
         if(client->online && client->ready){
             list += "/(" + client->name + ") - ready";
         }else{
-            if(client->logged) {
+            if(!client->empty) {
                 list += "/(" + client->name + ") - not ready";
             }else{
                 list += "/[waiting] - not ready";
@@ -239,6 +240,7 @@ void Game::renewClient(unsigned long logged_index, event e) {
     moveLoggedClient(e.id.index, logged_index);
 
     clients.at(logged_index)->online = true;
+    clients.at(logged_index)->logged = true;
 
     sendMessageToClient(logged_index, compose_message(UNICAST_S, "welcome back!"));
     sendMessageToClient(logged_index, compose_message(LOGIN_S, (int)logged_index));
@@ -330,12 +332,16 @@ void Game::cleaningClients() {
     }
 }
 
-void Game::sendQuestionsToAllClients(std::vector<question> questions) {
+std::string Game::getQuestionsData(std::vector<question> questions) {
     std::string msg_text = "";
     for(auto q : questions){
         msg_text += std::to_string(q.question_id) + "_" +
                 std::to_string(q.points) + "_" + std::to_string(q.avaible) + "-";
     }
 
-    sendToAllClients(compose_message(QUESTIONS_S, msg_text.substr(0, msg_text.size() - 1)));
+    return msg_text.substr(0, msg_text.size() - 1);
+}
+
+std::string Game::getClientName(unsigned long index) {
+    return "(" + clients.at(index)->name + ")";
 }

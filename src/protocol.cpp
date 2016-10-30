@@ -116,6 +116,13 @@ bool advanced_data_validation(message_type type, std::string data) {
                 return false;
             }
         }
+        case CHOOSE_QUESTION_C:{
+            if(is_number(data) && std::stoi(data) >= 0 && std::stoi(data) < 30){
+                return true;
+            }else{
+                return false;
+            }
+        }
         case ERROR:{
             return true;
         }

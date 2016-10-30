@@ -22,13 +22,14 @@ private:
     std::vector<question> all_questions;
     std::vector<question> actual_questions;
     int number_of_questions = 0;
-
     game_state main_game_state = GETTING_READY;
     Game *game = nullptr;
     std::shared_ptr<Logger> logger;
     void resetGameLogic();
     void shuffleQuestions();
     void startGame();
+
+    int actual_player_index = 0;
 public:
     GameLogic(Game *game_, std::shared_ptr<Logger> logger_, std::vector<question> questions_);
     void input(event e);

@@ -15,16 +15,16 @@ GameLogic::GameLogic(Game *game_, std::shared_ptr<Logger> logger_, std::vector<q
 void GameLogic::input(event e) {
 
     logger->Info("game logic input | " + game->clientInfo(e.id.index) + e.print());
-    game->info();
 
     switch(main_game_state){
         case GETTING_READY:{
             if(e.e_type == EVENT_message){
+                //ready before game
                 if(e.msg.m_type == READY_C && !game->isClientReady(e.id.index)){
                     game->ready(e.id.index);
-                    game->sendToAllClients(compose_message(BROADCAST, game->readyList()));
+                    game->sendMessageToAllClients(compose_message(BROADCAST, game->readyList()));
                 }else{
-                    logger->Error("bad game input");
+                    logger->Error("bad game input - not ready while GETTING_READY");
                 }
                 if(game->isEveryoneReady()){
                     startGame();
@@ -34,11 +34,29 @@ void GameLogic::input(event e) {
         }
         case PLAYING:{
             if(e.e_type == EVENT_client_disconnected){
+                //ending game while one player remains, this type of event is called every time player disconnects
                 if(game->activeClients < 2){
+                    logger->Error("Not enough players, back to state GETTING_READY");
+                    game->sendMessageToAllClients(compose_message(ERROR, "Not enough players!"));
+                    game->sendMessageToAllClients(compose_message(BROADCAST, game->readyList()));
                     resetGameLogic();
                 }
             }
 
+            if(e.e_type == EVENT_message && game->activeClients >= 2){
+                //ready while running game
+                if(e.msg.m_type == READY_C && !game->isClientReady(e.id.index)){
+                    game->ready(e.id.index);
+                    game->sendMessageToClient(e.id.index, compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
+                    game->sendMessageToAllClients(
+                            compose_message(BROADCAST, game->getClientName(e.id.index) + " has reconnected!"));
+                }
+                //choosing questions TODO just for testing purposes
+                else if(e.msg.m_type == CHOOSE_QUESTION_C && game->isClientReady(e.id.index)){
+                    game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index) + " question/" +
+                            actual_questions.at(std::stoi(e.msg.data)).question));
+                }
+            }
 
             //game cycle
 
@@ -50,9 +68,10 @@ void GameLogic::input(event e) {
             break;
         }
     }
+
+    game->info();
+
 }
-
-
 
 void GameLogic::resetGameLogic() {
     main_game_state = GETTING_READY;
@@ -71,7 +90,7 @@ void GameLogic::shuffleQuestions() {
 
 void GameLogic::startGame() {
     logger->Info("Everyone is ready, game started");
-    game->sendToAllClients(compose_message(BROADCAST, "game started"));
-    game->sendQuestionsToAllClients(actual_questions);
+    game->sendMessageToAllClients(compose_message(BROADCAST, "game started"));
+    game->sendMessageToAllClients(compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
     main_game_state = PLAYING;
 }

@@ -101,8 +101,8 @@ public:
     //SENDING
     void sendMessageToPendingClient(unsigned long pending_index, message msg);
     void sendMessageToClient(unsigned long index, message msg);
-    void sendToAllClients(message msg);
-    void sendQuestionsToAllClients(std::vector<question> questions);
+    void sendMessageToAllClients(message msg);
+    std::string getQuestionsData(std::vector<question> questions);
 
     //READY
     bool isClientReady(unsigned long index);
@@ -110,6 +110,7 @@ public:
     bool isEveryoneReady();
 
     void cleaningClients();
+    std::string getClientName(unsigned long index);
 
     //TOOLS
     std::string readyList();
