@@ -28,7 +28,7 @@ private:
     std::shared_ptr<Logger> logger;
     void resetGameLogic();
     void shuffleQuestions();
-
+    void startGame();
 public:
     GameLogic(Game *game_, std::shared_ptr<Logger> logger_, std::vector<question> questions_);
     void input(event e);

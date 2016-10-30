@@ -13,6 +13,7 @@
 #include <memory>
 
 struct question{
+    int question_id = 0;
     std::string question = "";
     std::string answer = "";
     int points = 0;

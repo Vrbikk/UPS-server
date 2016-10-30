@@ -26,23 +26,21 @@ void GameLogic::input(event e) {
                 }else{
                     logger->Error("bad game input");
                 }
-
                 if(game->isEveryoneReady()){
-                    logger->Info("Everyone is ready, game started");
-                    main_game_state = PLAYING;
-                    game->sendToAllClients(compose_message(BROADCAST, "game started"));
+                    startGame();
                 }
             }
             break;
         }
         case PLAYING:{
             if(e.e_type == EVENT_client_disconnected){
-
                 if(game->activeClients < 2){
                     resetGameLogic();
                 }
             }
 
+
+            //game cycle
 
             break;
         }
@@ -54,12 +52,26 @@ void GameLogic::input(event e) {
     }
 }
 
+
+
 void GameLogic::resetGameLogic() {
     main_game_state = GETTING_READY;
+    shuffleQuestions();
 }
 
 void GameLogic::shuffleQuestions() {
     actual_questions = all_questions;
     std::random_shuffle(actual_questions.begin(), actual_questions.end());
     actual_questions.resize(number_of_questions);
+
+    for(int i = 0; i < actual_questions.size(); i++){
+        actual_questions.at(i).question_id = i;
+    }
+}
+
+void GameLogic::startGame() {
+    logger->Info("Everyone is ready, game started");
+    game->sendToAllClients(compose_message(BROADCAST, "game started"));
+    game->sendQuestionsToAllClients(actual_questions);
+    main_game_state = PLAYING;
 }

@@ -15,7 +15,7 @@ enum event_type{
 };
 
 enum message_type{
-    DEBUG, LOGIN_C, LOGIN_S, BROADCAST, UNICAST_S, READY_C, READY_S, ERROR
+    DEBUG, LOGIN_C, LOGIN_S, BROADCAST, UNICAST_S, READY_C, READY_S, QUESTIONS_S, ERROR
 };
 
 struct client_id{
@@ -35,8 +35,7 @@ struct message {
     std::string raw = "";
 
     std::string print(){
-        return std::string("type:[" + std::to_string(m_type)  + "] data:[" + data +
-                                   "] len:[" + std::to_string(len) + "]");
+        return std::string("type:[" + std::to_string(m_type)  + "] data:[" + data + "]");
     }
 };
 
@@ -46,7 +45,7 @@ struct event{
     message msg;
 
     std::string print(){
-        return std::string("event - type:[" + std::to_string(e_type) + "] message:[" + msg.print() + "]");
+        return std::string("event[" + std::to_string(e_type) + "] msg:[" + msg.print() + "]");
     }
 };
 

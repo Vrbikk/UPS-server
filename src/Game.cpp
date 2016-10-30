@@ -304,7 +304,7 @@ void Game::decrementActiveClients() {
     logger->Info("Active Clients changed: " + std::to_string(activeClients) + "/" + std::to_string(maxClients));
 
     if(activeClients == 0){
-        resetClients();
+        cleaningClients();
     }else if(activeClients >= 1){
         resolveEvent(disconnection_event());
     }
@@ -321,11 +321,21 @@ void Game::info() {
     }
 }
 
-void Game::resetClients() {
+void Game::cleaningClients() {
 
-    logger->Info("0 active clients, resetting clients");
+    logger->Info("0 active clients, cleaning clients");
 
     for(auto &&client : clients){
         client->reset();
     }
+}
+
+void Game::sendQuestionsToAllClients(std::vector<question> questions) {
+    std::string msg_text = "";
+    for(auto q : questions){
+        msg_text += std::to_string(q.question_id) + "_" +
+                std::to_string(q.points) + "_" + std::to_string(q.avaible) + "-";
+    }
+
+    sendToAllClients(compose_message(QUESTIONS_S, msg_text.substr(0, msg_text.size() - 1)));
 }

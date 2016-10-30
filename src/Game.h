@@ -31,9 +31,9 @@ struct client{
 
     std::string print(){
         return std::string("CLIENT - name:[" + name +
-                                   "] ready:[" + std::to_string(ready) +
-                                   "] logged:[" + std::to_string(logged) +
-                                   "] online:[" + std::to_string(online) + "]");
+                                   "] r:[" + std::to_string(ready) +
+                                   "] l:[" + std::to_string(logged) +
+                                   "] o:[" + std::to_string(online) + "]");
     }
 
     void reset(){
@@ -102,13 +102,14 @@ public:
     void sendMessageToPendingClient(unsigned long pending_index, message msg);
     void sendMessageToClient(unsigned long index, message msg);
     void sendToAllClients(message msg);
+    void sendQuestionsToAllClients(std::vector<question> questions);
 
     //READY
     bool isClientReady(unsigned long index);
     void ready(unsigned long index);
     bool isEveryoneReady();
 
-    void resetClients();
+    void cleaningClients();
 
     //TOOLS
     std::string readyList();
