@@ -123,6 +123,11 @@ bool advanced_data_validation(message_type type, std::string data) {
                 return false;
             }
         }
+        case ANSWERING_QUESTION_C:{
+            if(data.size() < 40){
+                return true;
+            }
+        }
         case ERROR:{
             return true;
         }

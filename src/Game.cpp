@@ -345,3 +345,40 @@ std::string Game::getQuestionsData(std::vector<question> questions) {
 std::string Game::getClientName(unsigned long index) {
     return "(" + clients.at(index)->name + ")";
 }
+
+unsigned long Game::getNextPlayerIndex(int index) {
+    int tmp_index = index;
+    for(int i = 0; i < (maxClients); i++){
+        tmp_index = (int)nextPossibleClientIndex(tmp_index);
+        if(clients.at((unsigned long)tmp_index)->online && clients.at((unsigned long)tmp_index)->ready){
+            sendMessageToAllClients(compose_message(BROADCAST, "> Player " + getClientName(tmp_index) +
+            " is choosing Q"));
+            return (unsigned long)tmp_index;
+        }else{
+            sendMessageToAllClients(compose_message(BROADCAST, "> Skipping player " + getClientName(tmp_index)));
+        }
+    }
+    logger->Error("Not found next player capable of playing, this should not happend, but you never know... :D");
+}
+
+unsigned long Game::nextPossibleClientIndex(int index) {
+    if(index == (maxClients - 1)){
+        return 0;
+    }else{
+        return (unsigned long)(index + 1);
+    }
+}
+
+void Game::increasePoints(unsigned long index, int points) {
+    clients.at(index)->score += points;
+    sendMessageToAllClients(compose_message(BROADCAST, "> Well done! " + getClientName(index) + " has " + std::to_string(
+            clients.at(index)->score) + " points"));
+}
+
+void Game::gameResult() {
+    std::string results = "---results---/";
+    for(auto &&client : clients){
+        results += "(" + client->name + ") - " + std::to_string(client->score) + " points/";
+    }
+    sendMessageToAllClients(compose_message(BROADCAST, results));
+}

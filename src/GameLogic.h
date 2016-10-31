@@ -27,9 +27,17 @@ private:
     std::shared_ptr<Logger> logger;
     void resetGameLogic();
     void shuffleQuestions();
-    void startGame();
+    void startNewGame();
+    void setNextPlayerIndex();
+    bool isQuestionAvaible(std::string num);
+    bool isMoreQuestionsAvaible();
 
-    int actual_player_index = 0;
+    int actual_player_index = -1;
+    bool answering = false;
+    int answering_question = 0;
+    unsigned long answering_client_index = 0;
+
+
 public:
     GameLogic(Game *game_, std::shared_ptr<Logger> logger_, std::vector<question> questions_);
     void input(event e);

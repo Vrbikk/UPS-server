@@ -111,6 +111,11 @@ public:
 
     void cleaningClients();
     std::string getClientName(unsigned long index);
+    unsigned long getNextPlayerIndex(int index);
+    unsigned long nextPossibleClientIndex(int index);
+    void increasePoints(unsigned long index, int points);
+    void gameResult();
+
 
     //TOOLS
     std::string readyList();

@@ -27,7 +27,7 @@ void GameLogic::input(event e) {
                     logger->Error("bad game input - not ready while GETTING_READY");
                 }
                 if(game->isEveryoneReady()){
-                    startGame();
+                    startNewGame();
                 }
             }
             break;
@@ -51,15 +51,42 @@ void GameLogic::input(event e) {
                     game->sendMessageToAllClients(
                             compose_message(BROADCAST, game->getClientName(e.id.index) + " has reconnected!"));
                 }
-                //choosing questions TODO just for testing purposes
-                else if(e.msg.m_type == CHOOSE_QUESTION_C && game->isClientReady(e.id.index)){
+
+                //choosing questions
+                else if(e.msg.m_type == CHOOSE_QUESTION_C && game->isClientReady(e.id.index)
+                        && e.id.index == actual_player_index && !answering && isQuestionAvaible(e.msg.data)){
+                    answering = true;
+                    answering_question = std::stoi(e.msg.data);
+                    answering_client_index = e.id.index;
                     game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index) + " question/" +
-                            actual_questions.at(std::stoi(e.msg.data)).question));
+                            actual_questions.at(answering_question).question));
+                }
+
+                else if(e.msg.m_type == ANSWERING_QUESTION_C && game->isClientReady(e.id.index) && answering
+                        && answering_client_index == e.id.index){
+
+                        if(actual_questions.at(answering_question).answer.compare(e.msg.data) == 0) {
+                            game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index)
+                            + " answered - " + e.msg.data));
+                            game->increasePoints(e.id.index, actual_questions.at(answering_question).points);
+                        }else{
+                            game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index)
+                                                                                     + " answered - " + e.msg.data));
+                            game->sendMessageToAllClients(compose_message(BROADCAST, "> Bad answer!"));
+                        }
+
+                        actual_questions.at(answering_question).avaible = false;
+                        answering = false;
+                        game->sendMessageToAllClients(compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
+
+                        if(isMoreQuestionsAvaible()){
+                            setNextPlayerIndex();
+                        }else{
+                            game->gameResult();
+                            startNewGame();
+                        }
                 }
             }
-
-            //game cycle
-
             break;
         }
 
@@ -68,13 +95,11 @@ void GameLogic::input(event e) {
             break;
         }
     }
-
-    game->info();
-
 }
 
 void GameLogic::resetGameLogic() {
     main_game_state = GETTING_READY;
+    actual_player_index = -1;
     shuffleQuestions();
 }
 
@@ -88,9 +113,34 @@ void GameLogic::shuffleQuestions() {
     }
 }
 
-void GameLogic::startGame() {
-    logger->Info("Everyone is ready, game started");
-    game->sendMessageToAllClients(compose_message(BROADCAST, "game started"));
+void GameLogic::startNewGame() {
+
+    //TODO reset score before start
+
+    actual_player_index = -1;
+    logger->Info("New game started");
+    game->sendMessageToAllClients(compose_message(BROADCAST, "> new Game started!"));
+    shuffleQuestions();
     game->sendMessageToAllClients(compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
+    setNextPlayerIndex();
     main_game_state = PLAYING;
+}
+
+void GameLogic::setNextPlayerIndex() {
+    actual_player_index = game->getNextPlayerIndex(actual_player_index);
+}
+
+bool GameLogic::isQuestionAvaible(std::string num) {
+    int index = std::stoi(num);
+    return actual_questions.at(index).avaible;
+}
+
+bool GameLogic::isMoreQuestionsAvaible() {
+    for(auto question : actual_questions){
+        if(question.avaible){
+            return true;
+        }
+    }
+
+    return false;
 }
