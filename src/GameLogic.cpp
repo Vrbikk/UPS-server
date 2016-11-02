@@ -10,6 +10,10 @@ GameLogic::GameLogic(Game *game_, std::shared_ptr<Logger> logger_, std::vector<q
     logger->Info("GameLogic loaded " + std::to_string(all_questions.size()) + " all_questions");
     number_of_questions = game->maxClients * 3;
     shuffleQuestions();
+
+    waiting = false;
+    running_timer = true;
+    waiting_thread = std::thread(&GameLogic::waitingThread, this);
 }
 
 void GameLogic::input(event e) {
@@ -34,62 +38,48 @@ void GameLogic::input(event e) {
         }
         case PLAYING:{
             if(e.e_type == EVENT_client_disconnected){
-                //ending game while one player remains, this type of event is called every time player disconnects
+
+                if(e.id.index == actual_player_index){
+                    if(answering){
+                        declineAnswer();
+                    }else{
+                        declineChoosing();
+                    }
+                }
+
                 if(game->activeClients < 2){
                     logger->Error("Not enough players, back to state GETTING_READY");
-                    game->sendMessageToAllClients(compose_message(ERROR, "Not enough players!"));
-                    game->sendMessageToAllClients(compose_message(BROADCAST, game->readyList()));
-                    resetGameLogic();
+                    game->sendMessageToAllClients(compose_message(ERROR, "waiting 10s for players..."));
+
+                    waitForPlayer();
+
+                // if disconnected player is actual player
                 }
             }
 
             if(e.e_type == EVENT_message && game->activeClients >= 2){
-                //ready while running game
                 if(e.msg.m_type == READY_C && !game->isClientReady(e.id.index)){
-                    game->ready(e.id.index);
-                    game->sendMessageToClient(e.id.index, compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
-                    game->sendMessageToAllClients(
-                            compose_message(BROADCAST, game->getClientName(e.id.index) + " has reconnected!"));
+                    runningGameReady(e.id.index);
                 }
-
-                //choosing questions
                 else if(e.msg.m_type == CHOOSE_QUESTION_C && game->isClientReady(e.id.index)
                         && e.id.index == actual_player_index && !answering && isQuestionAvaible(e.msg.data)){
-                    answering = true;
-                    answering_question = std::stoi(e.msg.data);
-                    answering_client_index = e.id.index;
-                    game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index) + " question/" +
-                            actual_questions.at(answering_question).question));
+                    chooseQuestion(e);
                 }
 
                 else if(e.msg.m_type == ANSWERING_QUESTION_C && game->isClientReady(e.id.index) && answering
-                        && answering_client_index == e.id.index){
-
-                        if(actual_questions.at(answering_question).answer.compare(e.msg.data) == 0) {
-                            game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index)
-                            + " answered - " + e.msg.data));
-                            game->increasePoints(e.id.index, actual_questions.at(answering_question).points);
-                        }else{
-                            game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index)
-                                                                                     + " answered - " + e.msg.data));
-                            game->sendMessageToAllClients(compose_message(BROADCAST, "> Bad answer!"));
-                        }
-
-                        actual_questions.at(answering_question).avaible = false;
-                        answering = false;
-                        game->sendMessageToAllClients(compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
-
-                        if(isMoreQuestionsAvaible()){
-                            setNextPlayerIndex();
-                        }else{
-                            game->gameResult();
-                            startNewGame();
-                        }
+                        && actual_player_index == e.id.index){
+                        answer(e);
+                        nextTurn();
                 }
             }
             break;
         }
-
+        case WAITING:{
+            if(e.msg.m_type == READY_C && !game->isClientReady(e.id.index) && waiting){
+                runningGameReady(e.id.index);
+                resumePlaying();
+            }
+        }
         default:{
             logger->Error("Unexpected main_game_state");
             break;
@@ -98,8 +88,14 @@ void GameLogic::input(event e) {
 }
 
 void GameLogic::resetGameLogic() {
+
+    game->cleaningClients();
+    game->sendMessageToAllClients(compose_message(BROADCAST, game->readyList()));
+    game->sendMessageToAllClients(compose_message(BROADCAST, "the Game has been reseted/waiting for new players..."));
+
     main_game_state = GETTING_READY;
     actual_player_index = -1;
+    answering = false;
     shuffleQuestions();
 }
 
@@ -128,6 +124,10 @@ void GameLogic::startNewGame() {
 
 void GameLogic::setNextPlayerIndex() {
     actual_player_index = game->getNextPlayerIndex(actual_player_index);
+
+    game->sendMessageToAllClients(compose_message(BROADCAST, "> " + game->getClientName(actual_player_index) + " is choosing question"));
+
+    logger->Info("actual_player_index:" + std::to_string(actual_player_index));
 }
 
 bool GameLogic::isQuestionAvaible(std::string num) {
@@ -143,4 +143,141 @@ bool GameLogic::isMoreQuestionsAvaible() {
     }
 
     return false;
+}
+
+void GameLogic::runningGameReady(unsigned long index) {
+    game->ready(index);
+    game->sendMessageToClient(index, compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
+    game->sendMessageToAllClients(
+            compose_message(BROADCAST, game->getClientName(index) + " has reconnected!"));
+}
+
+void GameLogic::chooseQuestion(event e) {
+    answering = true;
+    answering_question = std::stoi(e.msg.data);
+    game->sendMessageToAllClients(compose_message(BROADCAST, "//" + actual_questions.at(answering_question).question + "/"));
+}
+
+void GameLogic::answer(event e) {
+    if(compareAnswers(e.msg.data)) {
+        game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index)
+                                                                 + " answered - " + e.msg.data));
+        game->increasePoints(e.id.index, actual_questions.at(answering_question).points);
+    }else{
+        game->sendMessageToAllClients(compose_message(BROADCAST, game->getClientName(e.id.index)
+                                                                 + " answered - " + e.msg.data));
+        game->sendMessageToAllClients(compose_message(BROADCAST, "> bad answer!"));
+    }
+
+    actual_questions.at(answering_question).avaible = false;
+    answering = false;
+}
+
+bool GameLogic::compareAnswers(std::string ans) {
+    std::string correct_answer = actual_questions.at(answering_question).answer;
+
+    std::transform(correct_answer.begin(), correct_answer.end(), correct_answer.begin(), ::toupper);
+    std::transform(ans.begin(), ans.end(), ans.begin(), ::toupper);
+
+    if(ans.compare(correct_answer) == 0){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+void GameLogic::declineAnswer() {
+    logger->Error("Declining answer");
+    actual_questions.at(answering_question).avaible = false;
+    answering = false;
+    nextTurn();
+}
+
+void GameLogic::nextTurn() {
+    logger->Info("Next turn");
+    //updates questions for all clients
+    game->sendMessageToAllClients(compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
+
+    if(isMoreQuestionsAvaible()){
+        setNextPlayerIndex();
+    }else{
+        game->gameResult();
+        startNewGame();
+    }
+}
+
+void GameLogic::declineChoosing() {
+    logger->Error("Declining choosing");
+    nextTurn();
+}
+
+void GameLogic::waitForPlayer() {
+    main_game_state = WAITING;
+    std::lock_guard<std::mutex> lk(mutex_waiting);
+    waiting = true;
+    cv.notify_one();
+}
+
+void GameLogic::waitingThread() {
+    while(running_timer){
+        std::unique_lock<std::mutex> lk(mutex_waiting);
+        cv.wait(lk, [&]{return waiting;});
+
+        if(running_timer){
+            for(int i = 0; i < waiting_seconds * 10; i++){
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+                if(reconnected){
+                    break;
+                }
+
+                if(interrupted){
+                    break;
+                }
+
+                if(i % 10 == 0){
+                    game->sendMessageToAllClients(compose_message(BROADCAST, std::to_string((i / 10) + 1) + " waiting..."));
+                }
+            }
+
+            if(!reconnected || interrupted){
+                logger->Info("interrupted");
+                resetGameLogic();
+            }
+
+            reconnected = false;
+            interrupted = false;
+        }
+
+        waiting = false;
+        lk.unlock();
+    }
+}
+
+void GameLogic::resumePlaying() {
+    reconnected = true;
+    main_game_state = PLAYING;
+    game->sendMessageToAllClients(compose_message(BROADCAST, "> " + game->getClientName(actual_player_index) + " is choosing question"));
+}
+
+GameLogic::~GameLogic() {
+    running_timer = false;
+
+    {
+        std::lock_guard<std::mutex> lk(mutex_waiting);
+        waiting = true;
+        cv.notify_one();
+    }
+
+    if(waiting_thread.joinable()){
+        waiting_thread.join();
+    }
+}
+
+void GameLogic::hardReset() {
+    if(waiting){
+        interrupted = true;
+    }else{
+        resetGameLogic();
+    }
 }

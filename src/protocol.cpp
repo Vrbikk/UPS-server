@@ -8,10 +8,8 @@ message compose_message(message_type type_, std::string data_) {
     message msg;
     msg.m_type = type_;
     msg.data = data_;
-    std::string msg_body = ":" + std::to_string(type_) + ":" + data_ + ";";
-    int body_size = (int)msg_body.size();
-    msg.len = body_size;
-    msg.raw = std::to_string(body_size) + msg_body;
+    msg.raw = std::to_string(type_) + ":" + data_ + ";";
+
     return msg;
 }
 
@@ -22,9 +20,8 @@ message compose_message(message_type type_, int data){
 message decompose_message(std::string input) {
     message msg;
     std::vector<std::string> items = split(get_message(input), ":");
-    msg.len = std::stoi(items[0]);
-    msg.m_type = static_cast<message_type>(std::stoi(items[1]));
-    msg.data = items[2];
+    msg.m_type = static_cast<message_type>(std::stoi(items[0]));
+    msg.data = items[1];
 
     return msg;
 }
@@ -38,10 +35,10 @@ event make_event(event_type e_type, message msg, client_id id){
     return e;
 }
 
-event disconnection_event(){
+event disconnection_event(client_id id) {
     event e;
     e.e_type = EVENT_client_disconnected;
-
+    e.id = id;
     return e;
 }
 
@@ -54,37 +51,31 @@ bool is_valid_message(std::string input) {
 
     std::string message = get_message(input);
 
-    if(message.empty() || message.size() < 5){
+    if(message.empty() || message.size() < 3){
        // LOGGER->Error("not valid - bad size after cropping");
         return false;
     }
 
     std::vector<std::string> items = split(message, ":");
 
-    if(items.empty() || items.size() != 3){
+    if(items.empty() || items.size() != 2){
       //  LOGGER->Error("not valid - items do not fit"); and if i fit i sit
         return false;
     }
 
-    if(!is_number(items[0]) || !is_number(items[1])){
+    if(!is_number(items[0])){
       //  LOGGER->Error("not valid - m_type or len are not numbers");
         return false;
     }
 
-    int len = std::stoi(items[0]);
-    int type = std::stoi(items[1]);
-
-    if((len - 1) != (items[1].size() + items[2].size() + 2)){  // 2 * DELIMETER,  without ;
-      //  LOGGER->Error("not valid - wrong len");
-        return false;
-    }
+    int type = std::stoi(items[0]);
 
     if(!(type >= DEBUG && type <= ERROR)) {
       //  LOGGER->Error("not valid - unknown m_type of message");
         return false;
     }
 
-    if(!advanced_data_validation(static_cast<message_type>(type), items[2])){
+    if(!advanced_data_validation(static_cast<message_type>(type), items[1])){
       //  LOGGER->Error("not valid - advanced data validation failed");
         return false;
     }

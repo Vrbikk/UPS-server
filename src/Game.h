@@ -74,7 +74,7 @@ public:
     int maxClients = 0;
     int activeClients = 0;
     void incrementActiveClients();
-    void decrementActiveClients();
+    void decrementActiveClients(client_id id);
 
     //OBSERVERS MANIPULATION
     void Attach(std::unique_ptr<ClientCommunication> client_communication);
@@ -115,7 +115,6 @@ public:
     unsigned long nextPossibleClientIndex(int index);
     void increasePoints(unsigned long index, int points);
     void gameResult();
-
 
     //TOOLS
     std::string readyList();

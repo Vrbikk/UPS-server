@@ -37,8 +37,7 @@ void Game::Detach(client_id id) {
         clients.at(id.index)->communication.reset(nullptr);
 
         sendMessageToAllClients(compose_message(BROADCAST, getClientName(id.index) + " has disconnected!"));
-
-        decrementActiveClients();
+        decrementActiveClients(id);
 
     }else{
         logger->Info("could not remove client");
@@ -164,7 +163,7 @@ void Game::sendMessageToAllClients(message msg) {
 }
 
 std::string Game::readyList() {
-    std::string list = "---ready_list---";
+    std::string list = "//---ready_list---";
 
     for(auto &&client : clients){
         if(client->online && client->ready){
@@ -177,6 +176,8 @@ std::string Game::readyList() {
             }
         }
     }
+
+    list += "/";
 
     return list;
 }
@@ -301,16 +302,16 @@ void Game::incrementActiveClients() {
     logger->Info("Active Clients changed: " + std::to_string(activeClients) + "/" + std::to_string(maxClients));
 }
 
-void Game::decrementActiveClients() {
+void Game::decrementActiveClients(client_id id) {
     activeClients--;
     logger->Info("Active Clients changed: " + std::to_string(activeClients) + "/" + std::to_string(maxClients));
 
     if(activeClients == 0){
         cleaningClients();
+        gameLogic->hardReset();
     }else if(activeClients >= 1){
-        resolveEvent(disconnection_event());
+        resolveEvent(disconnection_event(id));
     }
-
 }
 
 std::string Game::clientInfo(unsigned long index) {
@@ -325,10 +326,14 @@ void Game::info() {
 
 void Game::cleaningClients() {
 
-    logger->Info("0 active clients, cleaning clients");
+    logger->Info("cleaning clients");
 
     for(auto &&client : clients){
-        client->reset();
+
+        if(!client->online){
+            client->reset();
+        }
+
     }
 }
 
@@ -351,8 +356,6 @@ unsigned long Game::getNextPlayerIndex(int index) {
     for(int i = 0; i < (maxClients); i++){
         tmp_index = (int)nextPossibleClientIndex(tmp_index);
         if(clients.at((unsigned long)tmp_index)->online && clients.at((unsigned long)tmp_index)->ready){
-            sendMessageToAllClients(compose_message(BROADCAST, "> Player " + getClientName(tmp_index) +
-            " is choosing Q"));
             return (unsigned long)tmp_index;
         }else{
             sendMessageToAllClients(compose_message(BROADCAST, "> Skipping player " + getClientName(tmp_index)));
@@ -376,7 +379,7 @@ void Game::increasePoints(unsigned long index, int points) {
 }
 
 void Game::gameResult() {
-    std::string results = "---results---/";
+    std::string results = "//---results---/";
     for(auto &&client : clients){
         results += "(" + client->name + ") - " + std::to_string(client->score) + " points/";
     }

@@ -57,7 +57,6 @@ private:
     server_config default_server_configuration;
     std::shared_ptr<Logger> logger;
 
-
 public:
     Configuration(std::shared_ptr<Logger> logger_);
     Configuration(Configuration const&) = delete;

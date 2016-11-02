@@ -12,7 +12,7 @@
 #include <algorithm>
 
 enum game_state{
-    GETTING_READY, PLAYING
+    GETTING_READY, PLAYING, WAITING
 };
 
 class Game;
@@ -31,15 +31,37 @@ private:
     void setNextPlayerIndex();
     bool isQuestionAvaible(std::string num);
     bool isMoreQuestionsAvaible();
+    void runningGameReady(unsigned long index);
+    void chooseQuestion(event e);
+    void answer(event e);
+    bool compareAnswers(std::string ans);
+    void declineAnswer();
+    void declineChoosing();
+    void nextTurn();
 
     int actual_player_index = -1;
     bool answering = false;
     int answering_question = 0;
-    unsigned long answering_client_index = 0;
 
+    void waitForPlayer();
+    void resumePlaying();
+
+    std::thread waiting_thread;
+    bool waiting;
+    bool running_timer;
+    std::mutex mutex_waiting;
+    std::condition_variable cv;
+    int waiting_seconds = 10;
+    void waitingThread();
+
+    bool reconnected = false;
+    bool interrupted = false;
 
 public:
     GameLogic(Game *game_, std::shared_ptr<Logger> logger_, std::vector<question> questions_);
+    virtual ~GameLogic();
+
+    void hardReset();
     void input(event e);
 };
 

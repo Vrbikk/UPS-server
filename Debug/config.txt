@@ -8,39 +8,22 @@ server: Piko, 2, 10001, Piko.log, 1
 #question: question - answer - points
 
 question:Who is next American President?-Trump-100
-question:How much is 5 + 5?-10-50
-question:Best subject on FAV?-UPS-300
-question:Best teacher on FAV?-Valach-300
+question:Kolik je 5 + 5?-10-50
+question:Nejlepší předmět na FAV?-ups-300
+question:Nejlepší učitel?-Valachovič-300
 question:Where are muslims?-Germany-150
-question:Who is Bambinek?-Denis-500
 question:Who is next American President?-Trump-100
-question:How much is 5 + 5?-10-50
-question:Best subject on FAV?-UPS-300
-question:Best teacher on FAV?-Valach-300
+question:Kolik je 5 + 5?-10-50
+question:Nejlepší předmět na FAV?-ups-300
+question:Nejlepší učitel?-Valachovič-300
 question:Where are muslims?-Germany-150
-question:Who is Bambinek?-Denis-500
 question:Who is next American President?-Trump-100
-question:How much is 5 + 5?-10-50
-question:Best subject on FAV?-UPS-300
-question:Best teacher on FAV?-Valach-300
+question:Kolik je 5 + 5?-10-50
+question:Nejlepší předmět na FAV?-ups-300
+question:Nejlepší učitel?-Valachovič-300
 question:Where are muslims?-Germany-150
-question:Who is Bambinek?-Denis-500
 question:Who is next American President?-Trump-100
-question:How much is 5 + 5?-10-50
-question:Best subject on FAV?-UPS-300
-question:Best teacher on FAV?-Valach-300
+question:Kolik je 5 + 5?-10-50
+question:Nejlepší předmět na FAV?-ups-300
+question:Nejlepší učitel?-Valachovič-300
 question:Where are muslims?-Germany-150
-question:Who is Bambinek?-Denis-500
-question:Who is next American President?-Trump-100
-question:How much is 5 + 5?-10-50
-question:Best subject on FAV?-UPS-300
-question:Best teacher on FAV?-Valach-300
-question:Where are muslims?-Germany-150
-question:Who is Bambinek?-Denis-500
-question:Who is next American President?-Trump-100
-question:How much is 5 + 5?-10-50
-question:Best subject on FAV?-UPS-300
-question:Best teacher on FAV?-Valach-300
-question:Where are muslims?-Germany-150
-question:Who is Bambinek?-Denis-500
-

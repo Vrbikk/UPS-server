@@ -31,7 +31,6 @@ struct client_id{
 struct message {
     message_type m_type = DEBUG;
     std::string data = "";
-    int len = -1;
     std::string raw = "";
 
     std::string print(){
@@ -53,7 +52,7 @@ message compose_message(message_type type_, int data);
 message compose_message(message_type type_, std::string data_);
 message decompose_message(std::string input);
 event make_event(event_type e_type, message msg, client_id id);
-event disconnection_event();
+event disconnection_event(client_id id);
 
 bool is_valid_message(std::string input);
 
