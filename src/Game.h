@@ -110,6 +110,7 @@ public:
     bool isEveryoneReady();
 
     void cleaningClients();
+    void clearScore();
     std::string getClientName(unsigned long index);
     unsigned long getNextPlayerIndex(int index);
     unsigned long nextPossibleClientIndex(int index);

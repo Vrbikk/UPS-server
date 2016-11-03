@@ -110,15 +110,13 @@ void GameLogic::shuffleQuestions() {
 }
 
 void GameLogic::startNewGame() {
-
-    //TODO reset score before start
-
     actual_player_index = -1;
     logger->Info("New game started");
     game->sendMessageToAllClients(compose_message(BROADCAST, "> new Game started!"));
     shuffleQuestions();
     game->sendMessageToAllClients(compose_message(QUESTIONS_S, game->getQuestionsData(actual_questions)));
     setNextPlayerIndex();
+    game->clearScore();
     main_game_state = PLAYING;
 }
 

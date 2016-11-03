@@ -385,3 +385,9 @@ void Game::gameResult() {
     }
     sendMessageToAllClients(compose_message(BROADCAST, results));
 }
+
+void Game::clearScore() {
+    for(auto &&client : clients){
+        client->score = 0;
+    }
+}
