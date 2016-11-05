@@ -5,7 +5,7 @@
 #include "Server.h"
 
 Server::Server(server_config server_config_, std::vector<question> questions_) : server_conf(server_config_), questions(questions_){
-    logger = std::make_shared<Logger>(server_conf.logging_file, true, server_conf.enable_logging);
+    logger = std::make_shared<Logger>(server_conf.logging_file, console_logging, server_conf.enable_logging);
     logger->Info("--- " + server_conf.get_server_name() + " started ---");
     logger->Info(server_conf.get_server_params());
 }
@@ -101,7 +101,7 @@ void Server::initAccepting() {
 }
 
 std::string Server::getStatus() {
-    std::string status = server_conf.get_server_name() + " max clients:" + std::to_string(server_conf.number_of_clients) + "\n";
+    std::string status = server_conf.get_server_name() + " max_clients:" + std::to_string(server_conf.number_of_clients) + "\n";
     status += game->gameStatus();
 
     return status;

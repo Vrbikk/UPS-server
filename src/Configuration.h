@@ -14,6 +14,7 @@
 
 struct question{
     int question_id = 0;
+    std::string category = "";
     std::string question = "";
     std::string answer = "";
     int points = 0;
@@ -30,7 +31,7 @@ struct server_config{
 
     std::string get_server_name()
     {
-        std::string server_name = "Server <" + name + ">-[" + std::to_string(id) + "]";
+        std::string server_name = "Server <" + name + ">[" + std::to_string(id) + "]";
         return server_name;
     }
 

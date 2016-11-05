@@ -7,28 +7,21 @@ server: Piko, 2, 10001, Piko.log, 1
 
 #question: question - answer - points
 
-question:Kdo je hlavním hrdinou hry GTA San Andreas?-Carl Johnson-300
-question:Kolik je 5 + 5?-10-50
-question:Nejlepší předmět na FAV?-ups-300
-question:Jaké je hlavní město Ukrajiny?-Kyjev-300
-question:Jaké je hlavní město Maďarska?-Budapešť-300
-question:Jaké je hlavní město Finska?-Helsinky-300
-question:Kdo je nejlepší těžič dřeva ve Warcraft 3?-trhač-300
-question:Kdo to byl Karel Martel?-majordomus-300
-question:Kdo je hlavním hrdinou hry GTA San Andreas?-Carl Johnson-300
-question:Kolik je 5 + 5?-10-50
-question:Nejlepší předmět na FAV?-ups-300
-question:Jaké je hlavní město Ukrajiny?-Kyjev-300
-question:Jaké je hlavní město Maďarska?-Budapešť-300
-question:Jaké je hlavní město Finska?-Helsinky-300
-question:Kdo je nejlepší těžič dřeva ve Warcraft 3?-trhač-300
-question:Kdo to byl Karel Martel?-majordomus-300
-question:Kdo je hlavním hrdinou hry GTA San Andreas?-Carl Johnson-300
-question:Kolik je 5 + 5?-10-50
-question:Nejlepší předmět na FAV?-ups-300
-question:Jaké je hlavní město Ukrajiny?-Kyjev-300
-question:Jaké je hlavní město Maďarska?-Budapešť-300
-question:Jaké je hlavní město Finska?-Helsinky-300
-question:Kdo je nejlepší těžič dřeva ve Warcraft 3?-trhač-300
-question:Kdo to byl Karel Martel?-majordomus-300
+question:Hry-Kdo je hlavním hrdinou hry GTA San Andreas?-Carl Johnson-300
+question:Matika-Kolik je 5 + 5?-10-50
+question:FAV-Nejlepší předmět na FAV?-ups-300
+question:Města-Jaké je hlavní město Ukrajiny?-Kyjev-300
+question:Města-Jaké je hlavní město Maďarska?-Budapešť-300
+question:Města-Jaké je hlavní město Finska?-Helsinky-300
+question:Hry-Kdo je nejlepší těžič dřeva ve Warcraft 3?-trhač-300
+question:Historie-Kdo to byl Karel Martel?-majordomus-300
+question:Hry-Kdo je hlavním hrdinou hry GTA San Andreas?-Carl Johnson-300
+question:Matika-Kolik je 5 + 5?-10-50
+question:FAV-Nejlepší předmět na FAV?-ups-300
+question:Města-Jaké je hlavní město Ukrajiny?-Kyjev-300
+question:Města-Jaké je hlavní město Maďarska?-Budapešť-300
+question:Města-Jaké je hlavní město Finska?-Helsinky-300
+question:Hry-Kdo je nejlepší těžič dřeva ve Warcraft 3?-trhač-300
+question:Historie-Kdo to byl Karel Martel?-majordomus-300
+
 

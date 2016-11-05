@@ -17,6 +17,7 @@
 
 class Server {
 private:
+    bool console_logging = false;
     int server_socket = 0;
     int tcp_queue = 10;
 

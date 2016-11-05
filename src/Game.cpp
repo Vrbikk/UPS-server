@@ -17,8 +17,7 @@ void Game::Attach(std::unique_ptr<ClientCommunication> client_communication) {
         client_communication->sendMessage(compose_message(ERROR, "Server queue is full!"));
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        //now the client_communication destructor is called
-    }
+    }        //now the client_communication destructor is called
 }
 
 void Game::Detach(client_id id) {
@@ -143,11 +142,13 @@ void Game::sendMessageToClient(unsigned long index, message msg) {
 std::string Game::gameStatus() {
     std::string game_status = "";
 
-    for(auto &&a: pendingClients){
-        if(a == nullptr){
+    game_status += gameLogic->getStatus() + "\n";
+
+    for(auto &&a: clients){
+        if(a->empty){
             game_status += "----EMPTY----\n";
         }else{
-            game_status += a->getStatus() + "\n";
+            game_status += a->print() + "\n";
         }
     }
 
@@ -163,16 +164,16 @@ void Game::sendMessageToAllClients(message msg) {
 }
 
 std::string Game::readyList() {
-    std::string list = "//---ready_list---";
+    std::string list = "  ---ready list---";
 
     for(auto &&client : clients){
         if(client->online && client->ready){
-            list += "/(" + client->name + ") - ready";
+            list += "/  (" + client->name + ") - ready";
         }else{
             if(!client->empty) {
-                list += "/(" + client->name + ") - not ready";
+                list += "/  (" + client->name + ") - not ready";
             }else{
-                list += "/[waiting] - not ready";
+                list += "/  [waiting] - not ready";
             }
         }
     }
@@ -243,7 +244,7 @@ void Game::renewClient(unsigned long logged_index, event e) {
     clients.at(logged_index)->online = true;
     clients.at(logged_index)->logged = true;
 
-    sendMessageToClient(logged_index, compose_message(UNICAST_S, "welcome back!"));
+    sendMessageToClient(logged_index, compose_message(UNICAST_S, "Welcome back!"));
     sendMessageToClient(logged_index, compose_message(LOGIN_S, (int)logged_index));
 
     incrementActiveClients();
@@ -260,7 +261,7 @@ void Game::loginNewClient(unsigned long new_index, event e) {
     clients.at(new_index)->logged = true;
     clients.at(new_index)->name = e.msg.data;
 
-    sendMessageToClient(new_index, compose_message(UNICAST_S, "Welcome on the server!"));
+    sendMessageToClient(new_index, compose_message(UNICAST_S, "Welcome on the server"));
     sendMessageToClient(new_index, compose_message(LOGIN_S, new_index));
 
     incrementActiveClients();
@@ -341,7 +342,7 @@ std::string Game::getQuestionsData(std::vector<question> questions) {
     std::string msg_text = "";
     for(auto q : questions){
         msg_text += std::to_string(q.question_id) + "_" +
-                std::to_string(q.points) + "_" + std::to_string(q.avaible) + "-";
+                q.category + "_" + std::to_string(q.points) + "_" + std::to_string(q.avaible) + "-";
     }
 
     return msg_text.substr(0, msg_text.size() - 1);
@@ -358,7 +359,7 @@ unsigned long Game::getNextPlayerIndex(int index) {
         if(clients.at((unsigned long)tmp_index)->online && clients.at((unsigned long)tmp_index)->ready){
             return (unsigned long)tmp_index;
         }else{
-            sendMessageToAllClients(compose_message(BROADCAST, "> Skipping player " + getClientName(tmp_index)));
+            sendMessageToAllClients(compose_message(BROADCAST, "Skipping offline player: " + getClientName(tmp_index)));
         }
     }
     logger->Error("Not found next player capable of playing, this should not happend, but you never know... :D");
@@ -374,14 +375,14 @@ unsigned long Game::nextPossibleClientIndex(int index) {
 
 void Game::increasePoints(unsigned long index, int points) {
     clients.at(index)->score += points;
-    sendMessageToAllClients(compose_message(BROADCAST, "> Well done! " + getClientName(index) + " has " + std::to_string(
-            clients.at(index)->score) + " points"));
+    sendMessageToAllClients(compose_message(BROADCAST, "Well done, " + getClientName(index) + " has " + std::to_string(
+            clients.at(index)->score) + " points now!"));
 }
 
 void Game::gameResult() {
-    std::string results = "//---results---/";
+    std::string results = " ---results---/";
     for(auto &&client : clients){
-        results += "(" + client->name + ") - " + std::to_string(client->score) + " points/";
+        results += "  (" + client->name + ") - " + std::to_string(client->score) + " points/";
     }
     sendMessageToAllClients(compose_message(BROADCAST, results));
 }

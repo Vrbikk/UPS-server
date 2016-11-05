@@ -8,7 +8,9 @@ message compose_message(message_type type_, std::string data_) {
     message msg;
     msg.m_type = type_;
     msg.data = data_;
-    msg.raw = std::to_string(type_) + ":" + data_ + ";";
+    std::string message_body = std::to_string(type_) + ":" + data_ + ";";
+    msg.len = message_body.size();
+    msg.raw = std::to_string(msg.len) + ":" + std::to_string(type_) + ":" + data_ + ";";
 
     return msg;
 }
@@ -20,8 +22,9 @@ message compose_message(message_type type_, int data){
 message decompose_message(std::string input) {
     message msg;
     std::vector<std::string> items = split(get_message(input), ":");
-    msg.m_type = static_cast<message_type>(std::stoi(items[0]));
-    msg.data = items[1];
+    msg.len = std::stoi(items[0]);
+    msg.m_type = static_cast<message_type>(std::stoi(items[1]));
+    msg.data = items[2];
 
     return msg;
 }
@@ -51,31 +54,37 @@ bool is_valid_message(std::string input) {
 
     std::string message = get_message(input);
 
-    if(message.empty() || message.size() < 3){
+    if(message.empty() || message.size() < 5){
        // LOGGER->Error("not valid - bad size after cropping");
         return false;
     }
 
     std::vector<std::string> items = split(message, ":");
 
-    if(items.empty() || items.size() != 2){
+    if(items.empty() || items.size() != 3){
       //  LOGGER->Error("not valid - items do not fit"); and if i fit i sit
         return false;
     }
 
-    if(!is_number(items[0])){
+    if(!is_number(items[0]) || !is_number(items[1])){
       //  LOGGER->Error("not valid - m_type or len are not numbers");
         return false;
     }
 
-    int type = std::stoi(items[0]);
+    int len = std::stoi(items[0]);
+    int type = std::stoi(items[1]);
+
+    if((len) != (items[1].size() + items[2].size() + 2)){  // 2 * DELIMETER,  without ;
+        //  LOGGER->Error("not valid - wrong len");
+        return false;
+    }
 
     if(!(type >= DEBUG && type <= ERROR)) {
       //  LOGGER->Error("not valid - unknown m_type of message");
         return false;
     }
 
-    if(!advanced_data_validation(static_cast<message_type>(type), items[1])){
+    if(!advanced_data_validation(static_cast<message_type>(type), items[2])){
       //  LOGGER->Error("not valid - advanced data validation failed");
         return false;
     }

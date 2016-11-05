@@ -30,8 +30,7 @@ struct client{
     std::unique_ptr<ClientCommunication> communication;
 
     std::string print(){
-        return std::string("CLIENT - name:[" + name +
-                                   "] r:[" + std::to_string(ready) +
+        return std::string("[" + name + "] - r:[" + std::to_string(ready) +
                                    "] l:[" + std::to_string(logged) +
                                    "] o:[" + std::to_string(online) + "]");
     }

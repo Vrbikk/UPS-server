@@ -19,6 +19,9 @@ class Game;
 
 class GameLogic {
 private:
+
+    std::string game_state_string[3] = {"GETTING_READY", "PLAYING", "WAITING"};
+
     std::vector<question> all_questions;
     std::vector<question> actual_questions;
     int number_of_questions = 0;
@@ -63,6 +66,8 @@ public:
 
     void hardReset();
     void input(event e);
+    std::string getStatus();
+
 };
 
 

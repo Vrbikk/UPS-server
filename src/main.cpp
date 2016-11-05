@@ -36,8 +36,8 @@ int main(int argc, char *argv[]) {
             mainLogger->Info("shutting down servers...");
             break;
         }
-        if(!input.compare("id_")){
-            for(auto&& a : servers){
+        if(!input.compare("status")){
+            for(auto &&a : servers){
                 mainLogger->Info(a->getStatus());
             }
         }

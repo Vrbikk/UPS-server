@@ -104,11 +104,12 @@ std::vector<server_config> Configuration::getServerConfigurations() {
 void Configuration::parseQuestion(std::string value) {
     std::vector<std::string> q = split(value, Q_DELIMETER);
 
-    if(q.size() == 3){
+    if(q.size() == 4){
         question tmp_q;
-        tmp_q.question = q[0];
-        tmp_q.answer = q[1];
-        tmp_q.points = std::stoi(q[2]);
+        tmp_q.category = q[0];
+        tmp_q.question = q[1];
+        tmp_q.answer = q[2];
+        tmp_q.points = std::stoi(q[3]);
 
         questions.push_back(tmp_q);
     }
