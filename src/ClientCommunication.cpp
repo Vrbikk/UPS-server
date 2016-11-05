@@ -21,7 +21,8 @@ void ClientCommunication::clientRunner(){
     }
 }
 
-ClientCommunication::ClientCommunication(int connection_id, sockaddr_in address_ , std::shared_ptr<Game> game_, std::shared_ptr<Logger> logger_) :
+ClientCommunication::ClientCommunication(int connection_id, sockaddr_in address_ ,
+                                         std::shared_ptr<Game> game_, std::shared_ptr<Logger> logger_) :
         socket_number(connection_id), address(address_), game(game_), logger(logger_) {}
 
 void ClientCommunication::initThread() {

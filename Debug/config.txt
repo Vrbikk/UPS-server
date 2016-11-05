@@ -5,23 +5,24 @@
 server: Raven, 3, 10000, Raven.log, 1
 server: Piko, 2, 10001, Piko.log, 1
 
-#question: question - answer - points
+#question: category - question - answer - points
 
-question:Hry-Kdo je hlavním hrdinou hry GTA San Andreas?-Carl Johnson-300
-question:Matika-Kolik je 5 + 5?-10-50
-question:FAV-Nejlepší předmět na FAV?-ups-300
+question:Matika-Kolik je 5 + 5 * 10?-55-100
+question:Matika-Jak se jmenuje množina čísel N?-přirozená čísla-300
+question:Matika-Jakým číslem jsou dělitelná všechna rodná čísla?-11-600
+question:FAV-Nejlepší předmět na FAV?-ups-666
+question:FAV-Jaký programovací jazyk se hlavně učí na FAV (bohužel)?-Java-200
+question:FAV-Kolik stojí párek v rohlíku dole v bufetu?-nevim-150
+question:FAV-Který učitel se proslavil větou "Jak jsem nakoupil tak prodávám"?-Zíma-150
 question:Města-Jaké je hlavní město Ukrajiny?-Kyjev-300
-question:Města-Jaké je hlavní město Maďarska?-Budapešť-300
-question:Města-Jaké je hlavní město Finska?-Helsinky-300
-question:Hry-Kdo je nejlepší těžič dřeva ve Warcraft 3?-trhač-300
-question:Historie-Kdo to byl Karel Martel?-majordomus-300
-question:Hry-Kdo je hlavním hrdinou hry GTA San Andreas?-Carl Johnson-300
-question:Matika-Kolik je 5 + 5?-10-50
-question:FAV-Nejlepší předmět na FAV?-ups-300
-question:Města-Jaké je hlavní město Ukrajiny?-Kyjev-300
-question:Města-Jaké je hlavní město Maďarska?-Budapešť-300
-question:Města-Jaké je hlavní město Finska?-Helsinky-300
-question:Hry-Kdo je nejlepší těžič dřeva ve Warcraft 3?-trhač-300
-question:Historie-Kdo to byl Karel Martel?-majordomus-300
-
-
+question:Města-Jaké je hlavní město Maďarska?-Budapešť-400
+question:Města-Jaké je hlavní město Finska?-Helsinky-500
+question:PC Hry-V jakém roce vyšla hra World of Warcraft?-2004-550
+question:PC Hry-Jak se jmenoval první datadisk ke hře World of Warcraft?-The Burning Crusade-550
+question:PC Hry-Kdo je hlavním hrdinou hry GTA San Andreas (přezdívka)?-CJ-300
+question:Filmy-Jak se jmenoval hipogryf ve třetím díle Harryho Pottera?-Klofan-550
+question:Filmy-Jak se jmenuje pátý díl Harryho Pottera?-Fénixův řád-400
+question:Filmy-Čím si Dobby spálil ruce, když Harry Potter ležel na ošetřovně?-žehličkou-300
+question:Literatura-Kdo napsal Kytici?-Karel Jaromír Erben-500
+question:Literatura-Kdo napsal Krále Lávru?-Karel Havlíček Borovský-600
+question:Literatura-Kdo napsal dílo Bylo Nás pět?-Karel Poláček-700
