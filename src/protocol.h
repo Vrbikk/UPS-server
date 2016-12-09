@@ -14,8 +14,6 @@ enum event_type{
     EVENT_message, EVENT_client_disconnected
 };
 
-
-
 enum message_type{
     DEBUG, LOGIN_C, LOGIN_S, BROADCAST, UNICAST_S, READY_C, READY_S, QUESTIONS_S, CHOOSE_QUESTION_C, ANSWERING_QUESTION_C, ERROR
 };

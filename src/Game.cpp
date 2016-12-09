@@ -8,7 +8,7 @@ void Game::Attach(std::unique_ptr<ClientCommunication> client_communication) {
 
     int pending_index = getFreePendingPosition();
     if(pending_index >= 0){
-        logger->Info("Adding client to pending: with id:" + std::to_string(pending_index));
+        //logger->Info("Adding client to pending: with id:" + std::to_string(pending_index));
         client_communication->id.index = pending_index;
         pendingClients.at((unsigned long)pending_index) = std::move(client_communication);
         pendingClients.at((unsigned long)pending_index)->initThread();
@@ -96,7 +96,7 @@ Game::Game(std::shared_ptr<Logger> logger_, int number_of_clients_, std::vector<
         clients.at(i) = std::move(std::unique_ptr<client>(new client));
     }
 
-    pendingClients = std::vector<std::unique_ptr<ClientCommunication>>((unsigned long)maxClients);
+    pendingClients = std::vector<std::unique_ptr<ClientCommunication>>(200);
 }
 
 Game::~Game() {
@@ -110,7 +110,6 @@ Game::~Game() {
 
 void Game::resolveEvent(event e) {
     std::lock_guard<std::mutex> lk(resolve_mutex);
-
     switch(e.e_type){
         case EVENT_message:{
             if(e.msg.m_type == LOGIN_C && e.id.pending){
@@ -359,7 +358,7 @@ unsigned long Game::getNextPlayerIndex(int index) {
         if(clients.at((unsigned long)tmp_index)->online && clients.at((unsigned long)tmp_index)->ready){
             return (unsigned long)tmp_index;
         }else{
-            sendMessageToAllClients(compose_message(BROADCAST, "Skipping offline player: " + getClientName(tmp_index)));
+            sendMessageToAllClients(compose_message(BROADCAST, "Skipping offline player " + getClientName(tmp_index)));
         }
     }
     logger->Error("Not found next player capable of playing, this should not happend, but you never know... :D");

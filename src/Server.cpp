@@ -86,7 +86,6 @@ void Server::acceptingRunner() {
         int connection_id = 0;
 
         connection_id = accept(server_socket, (struct sockaddr *) &client_address, &size);
-
         if(connection_id > 0){
             std::unique_ptr<ClientCommunication> client_communication = std::unique_ptr<ClientCommunication>(new ClientCommunication(
                     connection_id, client_address, game, logger));
