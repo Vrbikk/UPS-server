@@ -13,11 +13,10 @@ void ClientCommunication::timerRunner() {
         gettimeofday(&tp, NULL);
         long int actual = tp.tv_sec * 1000 + tp.tv_usec / 1000;
 
-        if((actual - last_seen) > 3000){
+        if((actual - last_seen) > 3000 && checked){
             timer_running = false;
             logger->Error("TIMEOUTED " + getStatus());
             shutdown(socket_number, SHUT_RDWR);
-
         }
 
         //std::cout << actual << "  " << last_seen <<  "   " << (actual - last_seen) << std::endl;
@@ -78,6 +77,8 @@ void ClientCommunication::handleInput(std::string input) {
     if(is_valid_message(input)){
         event e = make_event(EVENT_message, decompose_message(input), id);
         if(e.msg.m_type == DEBUG){
+
+            if(checked == false) checked = true;
 
             struct timeval tp;
             gettimeofday(&tp, NULL);

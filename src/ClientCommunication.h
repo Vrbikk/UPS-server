@@ -18,6 +18,7 @@ class Game;
 class ClientCommunication {
 private:
 
+    bool checked = false;
     bool timer_running = true;
     long int last_seen = 0;
     std::shared_ptr<Game> game;
