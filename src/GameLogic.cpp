@@ -29,6 +29,7 @@ void GameLogic::input(event e) {
                     game->sendMessageToAllClients(compose_message(BROADCAST, game->readyList()));
                 }else{
                     logger->Error("bad game input");
+                    game->sendMessageToAllClients(compose_message(ERROR, "detected invalid message"));
                 }
                 if(game->isEveryoneReady()){
                     startNewGame();
